@@ -10,8 +10,7 @@
     "start": "next start",
     "lint": "eslint",
     "db:migrate": "prisma migrate dev",
-    "db:generate": "prisma generate",
-    "postinstall": "prisma generate"
+    "db:generate": "prisma generate"
   },
   "dependencies": {
     "@netlify/blobs": "^10.7.9",
@@ -43,12 +42,5 @@
     "eslint-config-next": "16.2.9",
     "tailwindcss": "^4",
     "typescript": "^5"
-  },
-  "allowScripts": {
-    "@prisma/engines@7.8.0": true,
-    "sharp@0.34.5": true,
-    "sharp@0.35.1": true,
-    "prisma@7.8.0": true,
-    "better-sqlite3@12.11.1": true
   }
 }
