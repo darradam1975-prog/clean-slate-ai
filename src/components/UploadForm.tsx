@@ -110,6 +110,7 @@ export function UploadForm() {
 
   const googleClientId = process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID;
   const googleApiKey = process.env.NEXT_PUBLIC_GOOGLE_API_KEY;
+  const driveConfigured = Boolean(googleClientId && googleApiKey);
 
   useEffect(() => {
     if (!googleClientId || !googleApiKey) return;
@@ -167,8 +168,10 @@ export function UploadForm() {
   }
 
   async function openGoogleDrivePicker() {
-    if (!googleClientId || !googleApiKey) {
-      setError("Google Drive is not configured. Add API keys to .env.local.");
+    if (!driveConfigured) {
+      setError(
+        "Google Drive import is optional and not set up yet. Use Upload from computer instead, or ask the site owner to add NEXT_PUBLIC_GOOGLE_CLIENT_ID and NEXT_PUBLIC_GOOGLE_API_KEY in Netlify environment variables and redeploy.",
+      );
       return;
     }
 
@@ -353,11 +356,29 @@ export function UploadForm() {
           <button
             type="button"
             onClick={openGoogleDrivePicker}
-            className="rounded-xl border border-dashed border-fuchsia-400/40 bg-fuchsia-500/5 px-4 py-6 text-sm text-fuchsia-100 transition hover:border-fuchsia-300/70 hover:bg-fuchsia-500/10"
+            disabled={!driveConfigured}
+            title={
+              driveConfigured
+                ? "Pick an image or video from Google Drive"
+                : "Not configured — use Upload from computer"
+            }
+            className={`rounded-xl border border-dashed px-4 py-6 text-sm transition ${
+              driveConfigured
+                ? "border-fuchsia-400/40 bg-fuchsia-500/5 text-fuchsia-100 hover:border-fuchsia-300/70 hover:bg-fuchsia-500/10"
+                : "cursor-not-allowed border-white/10 bg-white/[0.02] text-zinc-500"
+            }`}
           >
             Import from Google Drive
+            {!driveConfigured && (
+              <span className="mt-1 block text-xs text-zinc-600">Not configured</span>
+            )}
           </button>
         </div>
+        <p className="text-xs text-zinc-500">
+          {driveConfigured
+            ? "Choose a file from your computer or import from Google Drive."
+            : "Upload from computer works now. Google Drive is optional and needs API keys on the server."}
+        </p>
         <input
           ref={fileInputRef}
           type="file"
