@@ -4,9 +4,5 @@
 [build.environment]
   NODE_VERSION = "22"
 
-[database]
-  [database.migrations]
-    path = "netlify/database/migrations"
-
 [[plugins]]
   package = "@netlify/plugin-nextjs"
