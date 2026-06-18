@@ -7,3 +7,6 @@
 [database]
   [database.migrations]
     path = "netlify/database/migrations"
+
+[[plugins]]
+  package = "@netlify/plugin-nextjs"
