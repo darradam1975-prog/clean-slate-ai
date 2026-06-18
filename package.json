@@ -4,8 +4,8 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
-    "build": "next build",
-    "build:netlify": "next build",
+    "build": "next build --webpack",
+    "build:netlify": "next build --webpack",
     "netlify:deploy": "node scripts/patch-netlify-win.mjs && npx netlify-cli deploy --prod",
     "start": "next start",
     "lint": "eslint",
