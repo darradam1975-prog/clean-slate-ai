@@ -2,10 +2,6 @@ import "dotenv/config";
 import { defineConfig } from "prisma/config";
 
 function getDatabaseUrl(): string {
-  if (process.env.NETLIFY_DB_URL) {
-    return process.env.NETLIFY_DB_URL;
-  }
-
   if (
     process.env.DATABASE_URL?.startsWith("postgresql://") ||
     process.env.DATABASE_URL?.startsWith("postgres://")
@@ -13,7 +9,7 @@ function getDatabaseUrl(): string {
     return process.env.DATABASE_URL;
   }
 
-  // Used only by Prisma CLI during `prisma generate` when no DB URL is present.
+  // Prisma CLI only needs a valid URL shape for `generate`, not a live connection.
   return "postgresql://prisma-generate-only:prisma-generate-only@127.0.0.1:1/prisma";
 }
 
