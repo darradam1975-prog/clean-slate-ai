@@ -1,13 +1,9 @@
 [build]
-  command = "npm run build:netlify"
+  command = "npm run build"
 
 [build.environment]
   NODE_VERSION = "22"
-  NPM_CONFIG_PRODUCTION = "false"
 
 [database]
   [database.migrations]
     path = "netlify/database/migrations"
-
-[[plugins]]
-  package = "@netlify/plugin-nextjs"
