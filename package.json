@@ -4,8 +4,8 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
-    "build": "next build",
-    "build:netlify": "next build",
+    "build": "prisma generate && next build",
+    "build:netlify": "prisma generate && next build",
     "netlify:deploy": "node scripts/patch-netlify-win.mjs && npx netlify-cli deploy --prod",
     "start": "next start",
     "lint": "eslint",
