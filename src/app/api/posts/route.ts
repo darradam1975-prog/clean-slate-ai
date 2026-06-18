@@ -1,7 +1,9 @@
 import { NextResponse } from "next/server";
 import { getCurrentUser } from "@/lib/auth";
 import { detectAiContent } from "@/lib/ai-detection";
+import { mergeAiResults } from "@/lib/merge-ai-results";
 import { saveMediaBuffer } from "@/lib/media";
+import { detectVisualAi } from "@/lib/visual-ai-detection";
 import {
   moderateImage,
   moderateTitleOnly,
@@ -38,6 +40,11 @@ export async function POST(request: Request) {
     const formData = await request.formData();
     const title = String(formData.get("title") ?? "");
     const source = String(formData.get("source") ?? "computer");
+    const declaredAiRaw = formData.get("declaredAi");
+    const userDeclaredAi =
+      declaredAiRaw === "1" ||
+      declaredAiRaw === "true" ||
+      declaredAiRaw === "on";
     const durationRaw = formData.get("durationSeconds");
     const file = formData.get("file");
     const previewFrame = formData.get("previewFrame");
@@ -70,11 +77,13 @@ export async function POST(request: Request) {
     }
 
     let sfwResult;
-    let aiResult;
+    let metadataAi;
+    let aiScanBuffer = buffer;
+    let aiScanMime = mimeType;
 
     if (saved.mediaType === "image") {
       sfwResult = await moderateImage(buffer, title);
-      aiResult = await detectAiContent(buffer, mimeType);
+      metadataAi = await detectAiContent(buffer, mimeType);
     } else {
       const titleCheck = moderateTitleOnly(title);
       if (!titleCheck.isSfw) {
@@ -89,13 +98,21 @@ export async function POST(request: Request) {
 
       if (previewFrame instanceof File) {
         const frameBuffer = Buffer.from(await previewFrame.arrayBuffer());
+        aiScanBuffer = frameBuffer;
+        aiScanMime = previewFrame.type || "image/jpeg";
         sfwResult = await moderateVideoFrame(frameBuffer, title);
-        aiResult = await detectAiContent(frameBuffer, previewFrame.type || "image/jpeg");
+        metadataAi = await detectAiContent(aiScanBuffer, aiScanMime);
       } else {
         sfwResult = titleCheck;
-        aiResult = await detectAiContent(buffer, mimeType);
+        metadataAi = await detectAiContent(buffer, mimeType);
       }
     }
+
+    const visualAi = aiScanMime.startsWith("image/")
+      ? await detectVisualAi(aiScanBuffer, aiScanMime)
+      : { used: false, score: 0, topGenerator: null, signals: [] };
+
+    const aiResult = mergeAiResults(metadataAi, visualAi, userDeclaredAi);
 
     if (!sfwResult.isSfw) {
       return NextResponse.json(
@@ -121,6 +138,7 @@ export async function POST(request: Request) {
         isAiGenerated: aiResult.isAiGenerated,
         aiConfidence: aiResult.confidence,
         aiSignals: JSON.stringify(aiResult.signals),
+        userDeclaredAi,
         isSfw: sfwResult.isSfw,
         sfwConfidence: sfwResult.confidence,
         sfwSignals: JSON.stringify(sfwResult.signals),

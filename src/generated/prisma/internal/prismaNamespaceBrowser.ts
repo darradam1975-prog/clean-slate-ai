@@ -95,6 +95,7 @@ export const PostScalarFieldEnum = {
   isAiGenerated: 'isAiGenerated',
   aiConfidence: 'aiConfidence',
   aiSignals: 'aiSignals',
+  userDeclaredAi: 'userDeclaredAi',
   isSfw: 'isSfw',
   sfwConfidence: 'sfwConfidence',
   sfwSignals: 'sfwSignals',

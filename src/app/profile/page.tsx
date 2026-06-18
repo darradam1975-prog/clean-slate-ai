@@ -41,6 +41,7 @@ export default async function ProfilePage() {
           posts={posts.map((post) => ({
             ...post,
             createdAt: post.createdAt.toISOString(),
+            userDeclaredAi: post.userDeclaredAi,
             user: {
               ...post.user,
               avatarKind: post.user.avatarKind as AvatarKind,

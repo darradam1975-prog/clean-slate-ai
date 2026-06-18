@@ -51,6 +51,7 @@ export type PostMinAggregateOutputType = {
   isAiGenerated: boolean | null
   aiConfidence: number | null
   aiSignals: string | null
+  userDeclaredAi: boolean | null
   isSfw: boolean | null
   sfwConfidence: number | null
   sfwSignals: string | null
@@ -71,6 +72,7 @@ export type PostMaxAggregateOutputType = {
   isAiGenerated: boolean | null
   aiConfidence: number | null
   aiSignals: string | null
+  userDeclaredAi: boolean | null
   isSfw: boolean | null
   sfwConfidence: number | null
   sfwSignals: string | null
@@ -91,6 +93,7 @@ export type PostCountAggregateOutputType = {
   isAiGenerated: number
   aiConfidence: number
   aiSignals: number
+  userDeclaredAi: number
   isSfw: number
   sfwConfidence: number
   sfwSignals: number
@@ -127,6 +130,7 @@ export type PostMinAggregateInputType = {
   isAiGenerated?: true
   aiConfidence?: true
   aiSignals?: true
+  userDeclaredAi?: true
   isSfw?: true
   sfwConfidence?: true
   sfwSignals?: true
@@ -147,6 +151,7 @@ export type PostMaxAggregateInputType = {
   isAiGenerated?: true
   aiConfidence?: true
   aiSignals?: true
+  userDeclaredAi?: true
   isSfw?: true
   sfwConfidence?: true
   sfwSignals?: true
@@ -167,6 +172,7 @@ export type PostCountAggregateInputType = {
   isAiGenerated?: true
   aiConfidence?: true
   aiSignals?: true
+  userDeclaredAi?: true
   isSfw?: true
   sfwConfidence?: true
   sfwSignals?: true
@@ -274,6 +280,7 @@ export type PostGroupByOutputType = {
   isAiGenerated: boolean
   aiConfidence: number
   aiSignals: string
+  userDeclaredAi: boolean
   isSfw: boolean
   sfwConfidence: number
   sfwSignals: string
@@ -317,6 +324,7 @@ export type PostWhereInput = {
   isAiGenerated?: Prisma.BoolFilter<"Post"> | boolean
   aiConfidence?: Prisma.FloatFilter<"Post"> | number
   aiSignals?: Prisma.StringFilter<"Post"> | string
+  userDeclaredAi?: Prisma.BoolFilter<"Post"> | boolean
   isSfw?: Prisma.BoolFilter<"Post"> | boolean
   sfwConfidence?: Prisma.FloatFilter<"Post"> | number
   sfwSignals?: Prisma.StringFilter<"Post"> | string
@@ -338,6 +346,7 @@ export type PostOrderByWithRelationInput = {
   isAiGenerated?: Prisma.SortOrder
   aiConfidence?: Prisma.SortOrder
   aiSignals?: Prisma.SortOrder
+  userDeclaredAi?: Prisma.SortOrder
   isSfw?: Prisma.SortOrder
   sfwConfidence?: Prisma.SortOrder
   sfwSignals?: Prisma.SortOrder
@@ -362,6 +371,7 @@ export type PostWhereUniqueInput = Prisma.AtLeast<{
   isAiGenerated?: Prisma.BoolFilter<"Post"> | boolean
   aiConfidence?: Prisma.FloatFilter<"Post"> | number
   aiSignals?: Prisma.StringFilter<"Post"> | string
+  userDeclaredAi?: Prisma.BoolFilter<"Post"> | boolean
   isSfw?: Prisma.BoolFilter<"Post"> | boolean
   sfwConfidence?: Prisma.FloatFilter<"Post"> | number
   sfwSignals?: Prisma.StringFilter<"Post"> | string
@@ -383,6 +393,7 @@ export type PostOrderByWithAggregationInput = {
   isAiGenerated?: Prisma.SortOrder
   aiConfidence?: Prisma.SortOrder
   aiSignals?: Prisma.SortOrder
+  userDeclaredAi?: Prisma.SortOrder
   isSfw?: Prisma.SortOrder
   sfwConfidence?: Prisma.SortOrder
   sfwSignals?: Prisma.SortOrder
@@ -411,6 +422,7 @@ export type PostScalarWhereWithAggregatesInput = {
   isAiGenerated?: Prisma.BoolWithAggregatesFilter<"Post"> | boolean
   aiConfidence?: Prisma.FloatWithAggregatesFilter<"Post"> | number
   aiSignals?: Prisma.StringWithAggregatesFilter<"Post"> | string
+  userDeclaredAi?: Prisma.BoolWithAggregatesFilter<"Post"> | boolean
   isSfw?: Prisma.BoolWithAggregatesFilter<"Post"> | boolean
   sfwConfidence?: Prisma.FloatWithAggregatesFilter<"Post"> | number
   sfwSignals?: Prisma.StringWithAggregatesFilter<"Post"> | string
@@ -431,6 +443,7 @@ export type PostCreateInput = {
   isAiGenerated: boolean
   aiConfidence: number
   aiSignals: string
+  userDeclaredAi?: boolean
   isSfw: boolean
   sfwConfidence: number
   sfwSignals: string
@@ -451,6 +464,7 @@ export type PostUncheckedCreateInput = {
   isAiGenerated: boolean
   aiConfidence: number
   aiSignals: string
+  userDeclaredAi?: boolean
   isSfw: boolean
   sfwConfidence: number
   sfwSignals: string
@@ -471,6 +485,7 @@ export type PostUpdateInput = {
   isAiGenerated?: Prisma.BoolFieldUpdateOperationsInput | boolean
   aiConfidence?: Prisma.FloatFieldUpdateOperationsInput | number
   aiSignals?: Prisma.StringFieldUpdateOperationsInput | string
+  userDeclaredAi?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isSfw?: Prisma.BoolFieldUpdateOperationsInput | boolean
   sfwConfidence?: Prisma.FloatFieldUpdateOperationsInput | number
   sfwSignals?: Prisma.StringFieldUpdateOperationsInput | string
@@ -491,6 +506,7 @@ export type PostUncheckedUpdateInput = {
   isAiGenerated?: Prisma.BoolFieldUpdateOperationsInput | boolean
   aiConfidence?: Prisma.FloatFieldUpdateOperationsInput | number
   aiSignals?: Prisma.StringFieldUpdateOperationsInput | string
+  userDeclaredAi?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isSfw?: Prisma.BoolFieldUpdateOperationsInput | boolean
   sfwConfidence?: Prisma.FloatFieldUpdateOperationsInput | number
   sfwSignals?: Prisma.StringFieldUpdateOperationsInput | string
@@ -511,6 +527,7 @@ export type PostCreateManyInput = {
   isAiGenerated: boolean
   aiConfidence: number
   aiSignals: string
+  userDeclaredAi?: boolean
   isSfw: boolean
   sfwConfidence: number
   sfwSignals: string
@@ -531,6 +548,7 @@ export type PostUpdateManyMutationInput = {
   isAiGenerated?: Prisma.BoolFieldUpdateOperationsInput | boolean
   aiConfidence?: Prisma.FloatFieldUpdateOperationsInput | number
   aiSignals?: Prisma.StringFieldUpdateOperationsInput | string
+  userDeclaredAi?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isSfw?: Prisma.BoolFieldUpdateOperationsInput | boolean
   sfwConfidence?: Prisma.FloatFieldUpdateOperationsInput | number
   sfwSignals?: Prisma.StringFieldUpdateOperationsInput | string
@@ -550,6 +568,7 @@ export type PostUncheckedUpdateManyInput = {
   isAiGenerated?: Prisma.BoolFieldUpdateOperationsInput | boolean
   aiConfidence?: Prisma.FloatFieldUpdateOperationsInput | number
   aiSignals?: Prisma.StringFieldUpdateOperationsInput | string
+  userDeclaredAi?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isSfw?: Prisma.BoolFieldUpdateOperationsInput | boolean
   sfwConfidence?: Prisma.FloatFieldUpdateOperationsInput | number
   sfwSignals?: Prisma.StringFieldUpdateOperationsInput | string
@@ -580,6 +599,7 @@ export type PostCountOrderByAggregateInput = {
   isAiGenerated?: Prisma.SortOrder
   aiConfidence?: Prisma.SortOrder
   aiSignals?: Prisma.SortOrder
+  userDeclaredAi?: Prisma.SortOrder
   isSfw?: Prisma.SortOrder
   sfwConfidence?: Prisma.SortOrder
   sfwSignals?: Prisma.SortOrder
@@ -607,6 +627,7 @@ export type PostMaxOrderByAggregateInput = {
   isAiGenerated?: Prisma.SortOrder
   aiConfidence?: Prisma.SortOrder
   aiSignals?: Prisma.SortOrder
+  userDeclaredAi?: Prisma.SortOrder
   isSfw?: Prisma.SortOrder
   sfwConfidence?: Prisma.SortOrder
   sfwSignals?: Prisma.SortOrder
@@ -627,6 +648,7 @@ export type PostMinOrderByAggregateInput = {
   isAiGenerated?: Prisma.SortOrder
   aiConfidence?: Prisma.SortOrder
   aiSignals?: Prisma.SortOrder
+  userDeclaredAi?: Prisma.SortOrder
   isSfw?: Prisma.SortOrder
   sfwConfidence?: Prisma.SortOrder
   sfwSignals?: Prisma.SortOrder
@@ -724,6 +746,7 @@ export type PostCreateWithoutUserInput = {
   isAiGenerated: boolean
   aiConfidence: number
   aiSignals: string
+  userDeclaredAi?: boolean
   isSfw: boolean
   sfwConfidence: number
   sfwSignals: string
@@ -743,6 +766,7 @@ export type PostUncheckedCreateWithoutUserInput = {
   isAiGenerated: boolean
   aiConfidence: number
   aiSignals: string
+  userDeclaredAi?: boolean
   isSfw: boolean
   sfwConfidence: number
   sfwSignals: string
@@ -791,6 +815,7 @@ export type PostScalarWhereInput = {
   isAiGenerated?: Prisma.BoolFilter<"Post"> | boolean
   aiConfidence?: Prisma.FloatFilter<"Post"> | number
   aiSignals?: Prisma.StringFilter<"Post"> | string
+  userDeclaredAi?: Prisma.BoolFilter<"Post"> | boolean
   isSfw?: Prisma.BoolFilter<"Post"> | boolean
   sfwConfidence?: Prisma.FloatFilter<"Post"> | number
   sfwSignals?: Prisma.StringFilter<"Post"> | string
@@ -811,6 +836,7 @@ export type PostCreateManyUserInput = {
   isAiGenerated: boolean
   aiConfidence: number
   aiSignals: string
+  userDeclaredAi?: boolean
   isSfw: boolean
   sfwConfidence: number
   sfwSignals: string
@@ -830,6 +856,7 @@ export type PostUpdateWithoutUserInput = {
   isAiGenerated?: Prisma.BoolFieldUpdateOperationsInput | boolean
   aiConfidence?: Prisma.FloatFieldUpdateOperationsInput | number
   aiSignals?: Prisma.StringFieldUpdateOperationsInput | string
+  userDeclaredAi?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isSfw?: Prisma.BoolFieldUpdateOperationsInput | boolean
   sfwConfidence?: Prisma.FloatFieldUpdateOperationsInput | number
   sfwSignals?: Prisma.StringFieldUpdateOperationsInput | string
@@ -849,6 +876,7 @@ export type PostUncheckedUpdateWithoutUserInput = {
   isAiGenerated?: Prisma.BoolFieldUpdateOperationsInput | boolean
   aiConfidence?: Prisma.FloatFieldUpdateOperationsInput | number
   aiSignals?: Prisma.StringFieldUpdateOperationsInput | string
+  userDeclaredAi?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isSfw?: Prisma.BoolFieldUpdateOperationsInput | boolean
   sfwConfidence?: Prisma.FloatFieldUpdateOperationsInput | number
   sfwSignals?: Prisma.StringFieldUpdateOperationsInput | string
@@ -868,6 +896,7 @@ export type PostUncheckedUpdateManyWithoutUserInput = {
   isAiGenerated?: Prisma.BoolFieldUpdateOperationsInput | boolean
   aiConfidence?: Prisma.FloatFieldUpdateOperationsInput | number
   aiSignals?: Prisma.StringFieldUpdateOperationsInput | string
+  userDeclaredAi?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isSfw?: Prisma.BoolFieldUpdateOperationsInput | boolean
   sfwConfidence?: Prisma.FloatFieldUpdateOperationsInput | number
   sfwSignals?: Prisma.StringFieldUpdateOperationsInput | string
@@ -889,6 +918,7 @@ export type PostSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = r
   isAiGenerated?: boolean
   aiConfidence?: boolean
   aiSignals?: boolean
+  userDeclaredAi?: boolean
   isSfw?: boolean
   sfwConfidence?: boolean
   sfwSignals?: boolean
@@ -910,6 +940,7 @@ export type PostSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensio
   isAiGenerated?: boolean
   aiConfidence?: boolean
   aiSignals?: boolean
+  userDeclaredAi?: boolean
   isSfw?: boolean
   sfwConfidence?: boolean
   sfwSignals?: boolean
@@ -931,6 +962,7 @@ export type PostSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensio
   isAiGenerated?: boolean
   aiConfidence?: boolean
   aiSignals?: boolean
+  userDeclaredAi?: boolean
   isSfw?: boolean
   sfwConfidence?: boolean
   sfwSignals?: boolean
@@ -952,6 +984,7 @@ export type PostSelectScalar = {
   isAiGenerated?: boolean
   aiConfidence?: boolean
   aiSignals?: boolean
+  userDeclaredAi?: boolean
   isSfw?: boolean
   sfwConfidence?: boolean
   sfwSignals?: boolean
@@ -961,7 +994,7 @@ export type PostSelectScalar = {
   userId?: boolean
 }
 
-export type PostOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "title" | "mediaType" | "mediaPath" | "mimeType" | "fileSize" | "durationSeconds" | "isAiGenerated" | "aiConfidence" | "aiSignals" | "isSfw" | "sfwConfidence" | "sfwSignals" | "status" | "source" | "createdAt" | "userId", ExtArgs["result"]["post"]>
+export type PostOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "title" | "mediaType" | "mediaPath" | "mimeType" | "fileSize" | "durationSeconds" | "isAiGenerated" | "aiConfidence" | "aiSignals" | "userDeclaredAi" | "isSfw" | "sfwConfidence" | "sfwSignals" | "status" | "source" | "createdAt" | "userId", ExtArgs["result"]["post"]>
 export type PostInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
 }
@@ -988,6 +1021,7 @@ export type $PostPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs =
     isAiGenerated: boolean
     aiConfidence: number
     aiSignals: string
+    userDeclaredAi: boolean
     isSfw: boolean
     sfwConfidence: number
     sfwSignals: string
@@ -1429,6 +1463,7 @@ export interface PostFieldRefs {
   readonly isAiGenerated: Prisma.FieldRef<"Post", 'Boolean'>
   readonly aiConfidence: Prisma.FieldRef<"Post", 'Float'>
   readonly aiSignals: Prisma.FieldRef<"Post", 'String'>
+  readonly userDeclaredAi: Prisma.FieldRef<"Post", 'Boolean'>
   readonly isSfw: Prisma.FieldRef<"Post", 'Boolean'>
   readonly sfwConfidence: Prisma.FieldRef<"Post", 'Float'>
   readonly sfwSignals: Prisma.FieldRef<"Post", 'String'>

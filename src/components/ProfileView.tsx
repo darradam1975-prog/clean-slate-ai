@@ -12,6 +12,7 @@ type ProfilePost = {
   durationSeconds: number | null;
   isAiGenerated: boolean;
   aiConfidence: number;
+  userDeclaredAi?: boolean;
   createdAt: string;
   user: {
     username: string;

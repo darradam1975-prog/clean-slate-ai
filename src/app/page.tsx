@@ -36,9 +36,10 @@ export default async function HomePage() {
           </h1>
           <p className="mt-4 max-w-2xl text-zinc-400">
             Browse the gallery without signing in. Uploads are scanned for embedded
-            prompts, C2PA tags, and other metadata — but photo-realistic AI without
-            those hints may not be flagged. Content is also moderated for safe-for-work
-            posting. Usernames and profile pictures are randomly assigned colors or
+            prompts, C2PA tags, and visual AI patterns when configured — creators can
+            also self-label AI work. Photo-realistic AI without hints may still slip
+            through. Content is moderated for safe-for-work posting. Usernames and
+            profile pictures are randomly assigned colors or
             patterns like Crimson42 or a Dotted avatar — both permanent and never
             changeable.
           </p>
@@ -73,6 +74,7 @@ export default async function HomePage() {
                 post={{
                   ...post,
                   createdAt: post.createdAt.toISOString(),
+                  userDeclaredAi: post.userDeclaredAi,
                   user: {
                     ...post.user,
                     avatarKind: post.user.avatarKind as AvatarKind,

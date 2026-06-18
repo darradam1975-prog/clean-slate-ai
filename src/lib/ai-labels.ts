@@ -6,8 +6,33 @@ export type AiLabel = {
   tone: AiLabelTone;
 };
 
-export function getAiLabel(isAiGenerated: boolean, confidence: number): AiLabel {
+type AiLabelOptions = {
+  userDeclaredAi?: boolean;
+};
+
+export function getAiLabel(
+  isAiGenerated: boolean,
+  confidence: number,
+  options?: AiLabelOptions,
+): AiLabel {
   const percent = Math.round(confidence * 100);
+  const userDeclared = options?.userDeclaredAi ?? false;
+
+  if (userDeclared && isAiGenerated && confidence >= 0.7) {
+    return {
+      badge: "AI-generated",
+      hint: `${percent}% AI likelihood · creator labeled`,
+      tone: "ai",
+    };
+  }
+
+  if (userDeclared && isAiGenerated) {
+    return {
+      badge: "AI (creator labeled)",
+      hint: "Self-declared at upload",
+      tone: "ai",
+    };
+  }
 
   if (isAiGenerated) {
     if (confidence >= 0.7) {

@@ -98,6 +98,7 @@ export function UploadForm() {
   const router = useRouter();
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [title, setTitle] = useState("");
+  const [declaredAi, setDeclaredAi] = useState(false);
   const [file, setFile] = useState<File | null>(null);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const [source, setSource] = useState<"computer" | "google_drive">("computer");
@@ -275,6 +276,7 @@ export function UploadForm() {
       formData.append("title", title.trim());
       formData.append("file", file);
       formData.append("source", source);
+      formData.append("declaredAi", declaredAi ? "1" : "0");
 
       if (videoDuration != null) {
         formData.append("durationSeconds", String(videoDuration));
@@ -301,6 +303,7 @@ export function UploadForm() {
 
       setSuccess("Upload approved and published!");
       setTitle("");
+      setDeclaredAi(false);
       setFile(null);
       setPreviewUrl(null);
       setVideoDuration(null);
@@ -323,11 +326,27 @@ export function UploadForm() {
       <div>
         <h1 className="text-2xl font-semibold text-white">Share your creation</h1>
         <p className="mt-2 text-sm text-zinc-400">
-          Uploads are scanned for AI metadata (prompts, C2PA, tool tags) and must be
-          safe for work. Photo-realistic AI without embedded hints may not be detected.
-          Short video clips up to 30 seconds are welcome.
+          Uploads are scanned for AI metadata (prompts, C2PA, tool tags) and, when
+          configured, a visual AI detector for photo-realistic work. Content must be
+          safe for work. Short video clips up to 30 seconds are welcome.
         </p>
       </div>
+
+      <label className="flex cursor-pointer items-start gap-3 rounded-xl border border-white/10 bg-black/20 px-4 py-3 transition hover:border-violet-400/30">
+        <input
+          type="checkbox"
+          checked={declaredAi}
+          onChange={(e) => setDeclaredAi(e.target.checked)}
+          className="mt-1 h-4 w-4 rounded border-white/20 bg-black/40 text-violet-500 focus:ring-violet-400/40"
+        />
+        <span>
+          <span className="text-sm font-medium text-zinc-200">Made with AI</span>
+          <span className="mt-1 block text-xs leading-relaxed text-zinc-500">
+            Check this for photo-realistic AI that has no embedded metadata. Your post
+            will be labeled honestly even if automatic scans find nothing.
+          </span>
+        </span>
+      </label>
 
       <div className="space-y-2">
         <label htmlFor="title" className="text-sm font-medium text-zinc-200">

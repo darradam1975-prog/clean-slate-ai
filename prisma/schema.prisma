@@ -29,6 +29,7 @@ model Post {
   isAiGenerated   Boolean
   aiConfidence    Float
   aiSignals       String
+  userDeclaredAi  Boolean  @default(false)
   isSfw           Boolean
   sfwConfidence   Float
   sfwSignals      String

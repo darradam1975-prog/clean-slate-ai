@@ -13,6 +13,7 @@ type PostCardProps = {
     durationSeconds: number | null;
     isAiGenerated: boolean;
     aiConfidence: number;
+    userDeclaredAi?: boolean;
     createdAt: string;
     user: {
       username: string;
@@ -32,7 +33,9 @@ function formatDate(value: string) {
 
 export function PostCard({ post }: PostCardProps) {
   const mediaUrl = `/api/media/${post.mediaPath}`;
-  const aiLabel = getAiLabel(post.isAiGenerated, post.aiConfidence);
+  const aiLabel = getAiLabel(post.isAiGenerated, post.aiConfidence, {
+    userDeclaredAi: post.userDeclaredAi,
+  });
 
   return (
     <article className="group overflow-hidden rounded-2xl border border-white/10 bg-white/[0.03] shadow-xl shadow-black/20 transition hover:border-violet-400/30 hover:bg-white/[0.05]">
