@@ -6,7 +6,6 @@
     "dev": "next dev",
     "build": "prisma generate && next build",
     "build:netlify": "prisma generate && next build",
-    "postinstall": "prisma generate",
     "netlify:deploy": "node scripts/patch-netlify-win.mjs && npx netlify-cli deploy --prod",
     "start": "next start",
     "lint": "eslint",
@@ -43,12 +42,5 @@
     "eslint-config-next": "16.2.9",
     "tailwindcss": "^4",
     "typescript": "^5"
-  },
-  "allowScripts": {
-    "@prisma/engines@7.8.0": true,
-    "prisma@7.8.0": true,
-    "sharp@0.34.5": true,
-    "sharp@0.35.1": true,
-    "unrs-resolver@1.12.2": true
   }
 }
