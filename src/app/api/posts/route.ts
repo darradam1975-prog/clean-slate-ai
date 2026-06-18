@@ -1,0 +1,150 @@
+import { NextResponse } from "next/server";
+import { getCurrentUser } from "@/lib/auth";
+import { detectAiContent } from "@/lib/ai-detection";
+import { saveMediaBuffer } from "@/lib/media";
+import {
+  moderateImage,
+  moderateTitleOnly,
+  moderateVideoFrame,
+} from "@/lib/sfw-moderation";
+import { validateTitle } from "@/lib/validation";
+import { prisma } from "@/lib/db";
+
+export async function GET() {
+  const posts = await prisma.post.findMany({
+    where: { status: "approved" },
+    orderBy: { createdAt: "desc" },
+    include: {
+      user: {
+        select: {
+          username: true,
+          avatarKind: true,
+          avatarStyle: true,
+        },
+      },
+    },
+  });
+
+  return NextResponse.json({ posts });
+}
+
+export async function POST(request: Request) {
+  const user = await getCurrentUser();
+  if (!user) {
+    return NextResponse.json({ error: "Sign in to upload." }, { status: 401 });
+  }
+
+  try {
+    const formData = await request.formData();
+    const title = String(formData.get("title") ?? "");
+    const source = String(formData.get("source") ?? "computer");
+    const durationRaw = formData.get("durationSeconds");
+    const file = formData.get("file");
+    const previewFrame = formData.get("previewFrame");
+
+    const titleError = validateTitle(title);
+    if (titleError) {
+      return NextResponse.json({ error: titleError }, { status: 400 });
+    }
+
+    if (!(file instanceof File)) {
+      return NextResponse.json({ error: "Choose a file to upload." }, { status: 400 });
+    }
+
+    const durationSeconds =
+      durationRaw != null && durationRaw !== ""
+        ? Number(durationRaw)
+        : null;
+
+    const buffer = Buffer.from(await file.arrayBuffer());
+    const mimeType = file.type || "application/octet-stream";
+
+    let saved;
+    try {
+      saved = await saveMediaBuffer(buffer, mimeType, durationSeconds);
+    } catch (error) {
+      return NextResponse.json(
+        { error: error instanceof Error ? error.message : "Invalid file." },
+        { status: 400 },
+      );
+    }
+
+    let sfwResult;
+    let aiResult;
+
+    if (saved.mediaType === "image") {
+      sfwResult = await moderateImage(buffer, title);
+      aiResult = await detectAiContent(buffer, mimeType);
+    } else {
+      const titleCheck = moderateTitleOnly(title);
+      if (!titleCheck.isSfw) {
+        return NextResponse.json(
+          {
+            error: "Upload rejected: content must be safe for work.",
+            details: titleCheck,
+          },
+          { status: 422 },
+        );
+      }
+
+      if (previewFrame instanceof File) {
+        const frameBuffer = Buffer.from(await previewFrame.arrayBuffer());
+        sfwResult = await moderateVideoFrame(frameBuffer, title);
+        aiResult = await detectAiContent(frameBuffer, previewFrame.type || "image/jpeg");
+      } else {
+        sfwResult = titleCheck;
+        aiResult = await detectAiContent(buffer, mimeType);
+      }
+    }
+
+    if (!sfwResult.isSfw) {
+      return NextResponse.json(
+        {
+          error: "Upload rejected: content must be safe for work.",
+          details: {
+            sfwConfidence: sfwResult.confidence,
+            signals: sfwResult.signals,
+          },
+        },
+        { status: 422 },
+      );
+    }
+
+    const post = await prisma.post.create({
+      data: {
+        title: title.trim(),
+        mediaType: saved.mediaType,
+        mediaPath: saved.mediaPath,
+        mimeType: saved.mimeType,
+        fileSize: saved.fileSize,
+        durationSeconds: saved.durationSeconds,
+        isAiGenerated: aiResult.isAiGenerated,
+        aiConfidence: aiResult.confidence,
+        aiSignals: JSON.stringify(aiResult.signals),
+        isSfw: sfwResult.isSfw,
+        sfwConfidence: sfwResult.confidence,
+        sfwSignals: JSON.stringify(sfwResult.signals),
+        status: "approved",
+        source: source === "google_drive" ? "google_drive" : "computer",
+        userId: user.id,
+      },
+      include: {
+        user: {
+        select: {
+          username: true,
+          avatarKind: true,
+          avatarStyle: true,
+        },
+      },
+      },
+    });
+
+    return NextResponse.json({ post }, { status: 201 });
+  } catch (error) {
+    console.error("Upload error:", error);
+    return NextResponse.json(
+      { error: "Upload failed. Please try again." },
+      { status: 500 },
+    );
+  }
+}

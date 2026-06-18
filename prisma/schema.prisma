@@ -1,0 +1,43 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model User {
+  id           String   @id @default(cuid())
+  email        String   @unique
+  passwordHash String
+  username     String   @unique
+  avatarKind   String
+  avatarStyle  String
+  createdAt    DateTime @default(now())
+  posts        Post[]
+}
+
+model Post {
+  id              String   @id @default(cuid())
+  title           String
+  mediaType       String
+  mediaPath       String
+  mimeType        String
+  fileSize        Int
+  durationSeconds Float?
+  isAiGenerated   Boolean
+  aiConfidence    Float
+  aiSignals       String
+  isSfw           Boolean
+  sfwConfidence   Float
+  sfwSignals      String
+  status          String   @default("approved")
+  source          String   @default("computer")
+  createdAt       DateTime @default(now())
+  userId          String
+  user            User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([createdAt])
+  @@index([userId])
+}
