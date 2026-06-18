@@ -1,37 +1,26 @@
+import { getConnectionString } from "@netlify/database";
 import { PrismaPg } from "@prisma/adapter-pg";
 import { PrismaClient } from "@/generated/prisma/client";
 import { Pool } from "pg";
 
 const globalForPrisma = globalThis as unknown as { prisma: PrismaClient | undefined };
 
-function readRuntimeEnv(key: string): string | undefined {
-  const netlifyEnv = (globalThis as { Netlify?: { env?: { get: (name: string) => string | undefined } } })
-    .Netlify?.env;
-  const value = netlifyEnv?.get(key) ?? process.env[key];
-  return value && value.length > 0 ? value : undefined;
-}
-
 function getDatabaseUrl(): string {
-  const connectionString =
-    readRuntimeEnv("NETLIFY_DB_URL") ??
-    (() => {
-      const databaseUrl = readRuntimeEnv("DATABASE_URL");
-      if (
-        databaseUrl?.startsWith("postgresql://") ||
-        databaseUrl?.startsWith("postgres://")
-      ) {
-        return databaseUrl;
-      }
-      return undefined;
-    })();
-
-  if (!connectionString) {
-    throw new Error(
-      "No database configured. Run npx netlify dev locally or set NETLIFY_DB_URL on Netlify.",
-    );
+  try {
+    return getConnectionString();
+  } catch {
+    const databaseUrl = process.env.DATABASE_URL;
+    if (
+      databaseUrl?.startsWith("postgresql://") ||
+      databaseUrl?.startsWith("postgres://")
+    ) {
+      return databaseUrl;
+    }
   }
 
-  return connectionString;
+  throw new Error(
+    "No database configured. Run npx netlify dev locally or deploy on Netlify with Database enabled.",
+  );
 }
 
 function createPrismaClient(): PrismaClient {
