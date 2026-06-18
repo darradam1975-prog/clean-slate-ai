@@ -55,7 +55,6 @@ export default async function UserProfilePage({ params }: UserProfilePageProps) 
           posts={posts.map((post) => ({
             ...post,
             createdAt: post.createdAt.toISOString(),
-            userDeclaredAi: post.userDeclaredAi,
             user: {
               ...post.user,
               avatarKind: post.user.avatarKind as AvatarKind,

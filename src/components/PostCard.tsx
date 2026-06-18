@@ -1,5 +1,5 @@
 import { Avatar } from "@/components/Avatar";
-import { aiLabelToneClasses, getAiLabel } from "@/lib/ai-labels";
+import { NoAiMark } from "@/components/NoAiMark";
 import type { AvatarKind } from "@/lib/identity";
 import Link from "next/link";
 
@@ -11,9 +11,6 @@ type PostCardProps = {
     mediaPath: string;
     mimeType: string;
     durationSeconds: number | null;
-    isAiGenerated: boolean;
-    aiConfidence: number;
-    userDeclaredAi?: boolean;
     createdAt: string;
     user: {
       username: string;
@@ -33,9 +30,6 @@ function formatDate(value: string) {
 
 export function PostCard({ post }: PostCardProps) {
   const mediaUrl = `/api/media/${post.mediaPath}`;
-  const aiLabel = getAiLabel(post.isAiGenerated, post.aiConfidence, {
-    userDeclaredAi: post.userDeclaredAi,
-  });
 
   return (
     <article className="group overflow-hidden rounded-2xl border border-white/10 bg-white/[0.03] shadow-xl shadow-black/20 transition hover:border-violet-400/30 hover:bg-white/[0.05]">
@@ -55,19 +49,7 @@ export function PostCard({ post }: PostCardProps) {
             className="h-full w-full object-cover transition duration-500 group-hover:scale-[1.02]"
           />
         )}
-        <div className="absolute left-3 top-3 flex max-w-[calc(100%-1.5rem)] flex-col gap-1.5">
-          <span
-            className={`w-fit rounded-full px-2.5 py-1 text-xs font-medium backdrop-blur-md ${aiLabelToneClasses[aiLabel.tone]}`}
-          >
-            {aiLabel.badge}
-          </span>
-          <span
-            className="w-fit max-w-full rounded-full bg-black/55 px-2.5 py-1 text-[11px] leading-snug text-zinc-200 backdrop-blur-md"
-            title={aiLabel.hint}
-          >
-            {aiLabel.hint}
-          </span>
-        </div>
+        <NoAiMark />
       </div>
 
       <div className="space-y-2 p-4">

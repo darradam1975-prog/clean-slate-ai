@@ -1,9 +1,7 @@
 import { NextResponse } from "next/server";
 import { getCurrentUser } from "@/lib/auth";
-import { detectAiContent } from "@/lib/ai-detection";
-import { mergeAiResults } from "@/lib/merge-ai-results";
 import { saveMediaBuffer } from "@/lib/media";
-import { detectVisualAi } from "@/lib/visual-ai-detection";
+import { applyNoAiWatermark } from "@/lib/noai-watermark";
 import {
   moderateImage,
   moderateTitleOnly,
@@ -49,6 +47,13 @@ export async function POST(request: Request) {
     const file = formData.get("file");
     const previewFrame = formData.get("previewFrame");
 
+    if (!userDeclaredAi) {
+      return NextResponse.json(
+        { error: "Check “I made this with AI” to confirm your upload." },
+        { status: 400 },
+      );
+    }
+
     const titleError = validateTitle(title);
     if (titleError) {
       return NextResponse.json({ error: titleError }, { status: 400 });
@@ -63,27 +68,16 @@ export async function POST(request: Request) {
         ? Number(durationRaw)
         : null;
 
-    const buffer = Buffer.from(await file.arrayBuffer());
-    const mimeType = file.type || "application/octet-stream";
-
-    let saved;
-    try {
-      saved = await saveMediaBuffer(buffer, mimeType, durationSeconds);
-    } catch (error) {
-      return NextResponse.json(
-        { error: error instanceof Error ? error.message : "Invalid file." },
-        { status: 400 },
-      );
-    }
+    let buffer = Buffer.from(await file.arrayBuffer());
+    let mimeType = file.type || "application/octet-stream";
 
     let sfwResult;
-    let metadataAi;
-    let aiScanBuffer = buffer;
-    let aiScanMime = mimeType;
 
-    if (saved.mediaType === "image") {
+    if (mimeType.startsWith("image/")) {
       sfwResult = await moderateImage(buffer, title);
-      metadataAi = await detectAiContent(buffer, mimeType);
+      const watermarked = await applyNoAiWatermark(buffer, mimeType);
+      buffer = Buffer.from(watermarked.buffer);
+      mimeType = watermarked.mimeType;
     } else {
       const titleCheck = moderateTitleOnly(title);
       if (!titleCheck.isSfw) {
@@ -98,21 +92,11 @@ export async function POST(request: Request) {
 
       if (previewFrame instanceof File) {
         const frameBuffer = Buffer.from(await previewFrame.arrayBuffer());
-        aiScanBuffer = frameBuffer;
-        aiScanMime = previewFrame.type || "image/jpeg";
         sfwResult = await moderateVideoFrame(frameBuffer, title);
-        metadataAi = await detectAiContent(aiScanBuffer, aiScanMime);
       } else {
         sfwResult = titleCheck;
-        metadataAi = await detectAiContent(buffer, mimeType);
       }
     }
-
-    const visualAi = aiScanMime.startsWith("image/")
-      ? await detectVisualAi(aiScanBuffer, aiScanMime)
-      : { used: false, score: 0, topGenerator: null, signals: [] };
-
-    const aiResult = mergeAiResults(metadataAi, visualAi, userDeclaredAi);
 
     if (!sfwResult.isSfw) {
       return NextResponse.json(
@@ -127,6 +111,16 @@ export async function POST(request: Request) {
       );
     }
 
+    let saved;
+    try {
+      saved = await saveMediaBuffer(buffer, mimeType, durationSeconds);
+    } catch (error) {
+      return NextResponse.json(
+        { error: error instanceof Error ? error.message : "Invalid file." },
+        { status: 400 },
+      );
+    }
+
     const post = await prisma.post.create({
       data: {
         title: title.trim(),
@@ -135,10 +129,10 @@ export async function POST(request: Request) {
         mimeType: saved.mimeType,
         fileSize: saved.fileSize,
         durationSeconds: saved.durationSeconds,
-        isAiGenerated: aiResult.isAiGenerated,
-        aiConfidence: aiResult.confidence,
-        aiSignals: JSON.stringify(aiResult.signals),
-        userDeclaredAi,
+        isAiGenerated: true,
+        aiConfidence: 1,
+        aiSignals: JSON.stringify(["Trust mod: creator confirmed AI-generated"]),
+        userDeclaredAi: true,
         isSfw: sfwResult.isSfw,
         sfwConfidence: sfwResult.confidence,
         sfwSignals: JSON.stringify(sfwResult.signals),
@@ -148,12 +142,12 @@ export async function POST(request: Request) {
       },
       include: {
         user: {
-        select: {
-          username: true,
-          avatarKind: true,
-          avatarStyle: true,
+          select: {
+            username: true,
+            avatarKind: true,
+            avatarStyle: true,
+          },
         },
-      },
       },
     });
 

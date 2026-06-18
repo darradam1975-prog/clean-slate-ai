@@ -32,14 +32,13 @@ export default async function HomePage() {
             Safe for work AI gallery
           </p>
           <h1 className="mt-3 max-w-3xl text-3xl font-semibold tracking-tight text-white sm:text-4xl">
-            Share AI art and short clips with automatic scanning
+            Share AI art and short clips on a trust-based gallery
           </h1>
           <p className="mt-4 max-w-2xl text-zinc-400">
-            Browse the gallery without signing in. Uploads are scanned for embedded
-            prompts, C2PA tags, and visual AI patterns when configured — creators can
-            also self-label AI work. Photo-realistic AI without hints may still slip
-            through. Content is moderated for safe-for-work posting. Usernames and
-            profile pictures are randomly assigned colors or
+            Browse the gallery without signing in. Creators confirm “I made this with
+            AI” on every upload — no automatic tagging. All images carry a noAI
+            protection mark. Content is moderated for safe-for-work posting. Usernames
+            and profile pictures are randomly assigned colors or
             patterns like Crimson42 or a Dotted avatar — both permanent and never
             changeable.
           </p>
@@ -74,7 +73,6 @@ export default async function HomePage() {
                 post={{
                   ...post,
                   createdAt: post.createdAt.toISOString(),
-                  userDeclaredAi: post.userDeclaredAi,
                   user: {
                     ...post.user,
                     avatarKind: post.user.avatarKind as AvatarKind,

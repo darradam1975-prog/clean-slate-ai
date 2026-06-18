@@ -1,5 +1,6 @@
 "use client";
 
+import { NoAiMark } from "@/components/NoAiMark";
 import { useRouter } from "next/navigation";
 import { FormEvent, useEffect, useRef, useState } from "react";
 
@@ -269,6 +270,11 @@ export function UploadForm() {
       return;
     }
 
+    if (!declaredAi) {
+      setError("Check “I made this with AI” to confirm your upload.");
+      return;
+    }
+
     setLoading(true);
 
     try {
@@ -326,24 +332,27 @@ export function UploadForm() {
       <div>
         <h1 className="text-2xl font-semibold text-white">Share your creation</h1>
         <p className="mt-2 text-sm text-zinc-400">
-          Uploads are scanned for AI metadata (prompts, C2PA, tool tags) and, when
-          configured, a visual AI detector for photo-realistic work. Content must be
-          safe for work. Short video clips up to 30 seconds are welcome.
+          This gallery uses trust moderation — you confirm every upload is AI-made.
+          Images are stamped with a noAI protection mark. Content must be safe for
+          work. Short video clips up to 30 seconds are welcome.
         </p>
       </div>
 
-      <label className="flex cursor-pointer items-start gap-3 rounded-xl border border-white/10 bg-black/20 px-4 py-3 transition hover:border-violet-400/30">
+      <label className="flex cursor-pointer items-start gap-3 rounded-xl border border-violet-400/25 bg-violet-500/5 px-4 py-3 transition hover:border-violet-400/40">
         <input
           type="checkbox"
           checked={declaredAi}
           onChange={(e) => setDeclaredAi(e.target.checked)}
+          required
           className="mt-1 h-4 w-4 rounded border-white/20 bg-black/40 text-violet-500 focus:ring-violet-400/40"
         />
         <span>
-          <span className="text-sm font-medium text-zinc-200">Made with AI</span>
+          <span className="text-sm font-medium text-zinc-200">
+            I made this with AI <span className="text-fuchsia-300">*</span>
+          </span>
           <span className="mt-1 block text-xs leading-relaxed text-zinc-500">
-            Check this for photo-realistic AI that has no embedded metadata. Your post
-            will be labeled honestly even if automatic scans find nothing.
+            Required trust confirmation. By checking this you confirm the upload is
+            AI-generated and agree it will carry a noAI protection mark.
           </span>
         </span>
       </label>
@@ -415,13 +424,14 @@ export function UploadForm() {
       </div>
 
       {previewUrl && (
-        <div className="overflow-hidden rounded-2xl border border-white/10 bg-black/40">
+        <div className="relative overflow-hidden rounded-2xl border border-white/10 bg-black/40">
           {file?.type.startsWith("video/") ? (
             <video src={previewUrl} controls className="max-h-80 w-full" />
           ) : (
             // eslint-disable-next-line @next/next/no-img-element
             <img src={previewUrl} alt="Preview" className="max-h-80 w-full object-contain" />
           )}
+          <NoAiMark />
         </div>
       )}
 
@@ -442,7 +452,7 @@ export function UploadForm() {
         disabled={loading}
         className="w-full rounded-xl bg-gradient-to-r from-violet-500 to-fuchsia-500 px-4 py-3 text-sm font-semibold text-white shadow-lg shadow-violet-500/30 transition hover:brightness-110 disabled:cursor-not-allowed disabled:opacity-60"
       >
-        {loading ? "Scanning and uploading..." : "Publish to gallery"}
+        {loading ? "Uploading..." : "Publish to gallery"}
       </button>
     </form>
   );
