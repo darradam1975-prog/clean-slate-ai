@@ -1,4 +1,4 @@
-import sharp from "sharp";
+import { loadSharp } from "@/lib/sharp-loader";
 
 export type SfwModerationResult = {
   isSfw: boolean;
@@ -43,31 +43,40 @@ async function analyzeImagePixels(buffer: Buffer): Promise<{
   signals: string[];
 }> {
   const signals: string[] = [];
+  const sharp = await loadSharp();
 
-  const { data, info } = await sharp(buffer)
-    .resize(320, 320, { fit: "inside", withoutEnlargement: true })
-    .removeAlpha()
-    .raw()
-    .toBuffer({ resolveWithObject: true });
+  if (!sharp) {
+    return { skinRatio: 0, signals };
+  }
 
-  let skinPixels = 0;
-  const totalPixels = info.width * info.height;
+  try {
+    const { data, info } = await sharp(buffer)
+      .resize(320, 320, { fit: "inside", withoutEnlargement: true })
+      .removeAlpha()
+      .raw()
+      .toBuffer({ resolveWithObject: true });
 
-  for (let i = 0; i < data.length; i += 3) {
-    if (isSkinTone(data[i], data[i + 1], data[i + 2])) {
-      skinPixels++;
+    let skinPixels = 0;
+    const totalPixels = info.width * info.height;
+
+    for (let i = 0; i < data.length; i += 3) {
+      if (isSkinTone(data[i], data[i + 1], data[i + 2])) {
+        skinPixels++;
+      }
     }
+
+    const skinRatio = totalPixels > 0 ? skinPixels / totalPixels : 0;
+
+    if (skinRatio > 0.42) {
+      signals.push("High skin-tone pixel ratio");
+    } else if (skinRatio > 0.28) {
+      signals.push("Elevated skin-tone pixel ratio");
+    }
+
+    return { skinRatio, signals };
+  } catch {
+    return { skinRatio: 0, signals };
   }
-
-  const skinRatio = totalPixels > 0 ? skinPixels / totalPixels : 0;
-
-  if (skinRatio > 0.42) {
-    signals.push("High skin-tone pixel ratio");
-  } else if (skinRatio > 0.28) {
-    signals.push("Elevated skin-tone pixel ratio");
-  }
-
-  return { skinRatio, signals };
 }
 
 function scoreFromSignals(

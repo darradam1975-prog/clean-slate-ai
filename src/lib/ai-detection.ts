@@ -1,5 +1,5 @@
 import exifr from "exifr";
-import sharp from "sharp";
+import { loadSharp } from "@/lib/sharp-loader";
 
 export type AiDetectionResult = {
   isAiGenerated: boolean;
@@ -75,6 +75,8 @@ function scanRawText(buffer: Buffer): string[] {
 
 async function analyzeImageStats(buffer: Buffer): Promise<string[]> {
   const signals: string[] = [];
+  const sharp = await loadSharp();
+  if (!sharp) return signals;
 
   try {
     const { data, info } = await sharp(buffer)
@@ -142,15 +144,18 @@ async function analyzeMetadata(buffer: Buffer, mimeType: string): Promise<string
   }
 
   if (mimeType.startsWith("image/")) {
-    try {
-      const meta = await sharp(buffer).metadata();
-      if (meta.exif) {
-        const exifText = meta.exif.toString("latin1").toLowerCase();
-        const marker = containsAiMarker(exifText);
-        if (marker) signals.push(`EXIF binary marker: ${marker}`);
+    const sharp = await loadSharp();
+    if (sharp) {
+      try {
+        const meta = await sharp(buffer).metadata();
+        if (meta.exif) {
+          const exifText = meta.exif.toString("latin1").toLowerCase();
+          const marker = containsAiMarker(exifText);
+          if (marker) signals.push(`EXIF binary marker: ${marker}`);
+        }
+      } catch {
+        // Ignore sharp metadata failures.
       }
-    } catch {
-      // Ignore sharp metadata failures.
     }
   }
 

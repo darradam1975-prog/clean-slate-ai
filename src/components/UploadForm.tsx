@@ -168,7 +168,7 @@ export function UploadForm() {
   }
 
   async function openGoogleDrivePicker() {
-    if (!driveConfigured) {
+    if (!googleClientId || !googleApiKey) {
       setError(
         "Google Drive import is optional and not set up yet. Use Upload from computer instead, or ask the site owner to add NEXT_PUBLIC_GOOGLE_CLIENT_ID and NEXT_PUBLIC_GOOGLE_API_KEY in Netlify environment variables and redeploy.",
       );
