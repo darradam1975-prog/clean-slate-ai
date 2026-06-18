@@ -4,8 +4,8 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
-    "build": "next build --webpack",
-    "build:netlify": "next build --webpack",
+    "build": "next build",
+    "build:netlify": "next build",
     "netlify:deploy": "node scripts/patch-netlify-win.mjs && npx netlify-cli deploy --prod",
     "start": "next start",
     "lint": "eslint",
@@ -14,7 +14,6 @@
   },
   "dependencies": {
     "@netlify/blobs": "^10.7.9",
-    "@netlify/plugin-nextjs": "^5.15.11",
     "@netlify/database": "^1.0.0",
     "@prisma/adapter-pg": "^7.8.0",
     "@prisma/client": "^7.8.0",
