@@ -323,7 +323,8 @@ export function UploadForm() {
       <div>
         <h1 className="text-2xl font-semibold text-white">Share your creation</h1>
         <p className="mt-2 text-sm text-zinc-400">
-          All uploads are scanned for AI generation and must be safe for work.
+          Uploads are scanned for AI metadata (prompts, C2PA, tool tags) and must be
+          safe for work. Photo-realistic AI without embedded hints may not be detected.
           Short video clips up to 30 seconds are welcome.
         </p>
       </div>

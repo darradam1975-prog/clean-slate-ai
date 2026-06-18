@@ -23,7 +23,9 @@ export default async function UploadPage() {
           />
           <p>
             Signed in as{" "}
-            <span className="font-medium text-violet-200">{user.username}</span>
+            <Link href="/profile" className="font-medium text-violet-200 hover:text-violet-100">
+              {user.username}
+            </Link>
             <span className="text-zinc-600">
               {" "}
               · permanent username &amp; profile picture

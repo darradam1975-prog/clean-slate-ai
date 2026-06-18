@@ -51,7 +51,10 @@ export function Header() {
         <nav className="flex items-center gap-2 sm:gap-3">
           {!loading && user ? (
             <>
-              <div className="hidden items-center gap-2 rounded-full border border-violet-400/30 bg-violet-500/10 px-2 py-1 sm:flex">
+              <Link
+                href="/profile"
+                className="hidden items-center gap-2 rounded-full border border-violet-400/30 bg-violet-500/10 px-2 py-1 transition hover:border-violet-300/50 hover:bg-violet-500/20 sm:flex"
+              >
                 <Avatar
                   kind={user.avatarKind}
                   style={user.avatarStyle}
@@ -59,7 +62,13 @@ export function Header() {
                   size="sm"
                 />
                 <span className="pr-1 text-sm text-violet-100">{user.username}</span>
-              </div>
+              </Link>
+              <Link
+                href="/profile"
+                className="rounded-full border border-white/10 px-4 py-2 text-sm text-zinc-200 transition hover:border-white/25 hover:text-white sm:hidden"
+              >
+                Profile
+              </Link>
               <Link
                 href="/upload"
                 className="rounded-full bg-gradient-to-r from-violet-500 to-fuchsia-500 px-4 py-2 text-sm font-medium text-white shadow-md shadow-violet-500/25 transition hover:brightness-110"
