@@ -3,7 +3,7 @@
 import { Avatar } from "@/components/Avatar";
 import type { AvatarKind } from "@/lib/identity";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 
 type User = {
@@ -16,6 +16,8 @@ type User = {
 
 export function Header() {
   const router = useRouter();
+  const pathname = usePathname();
+  const settingsOpen = pathname === "/settings";
   const [user, setUser] = useState<User | null>(null);
   const [incomingFriendRequests, setIncomingFriendRequests] = useState(0);
   const [isOwner, setIsOwner] = useState(false);
@@ -90,10 +92,10 @@ export function Header() {
               </Link>
               {isOwner && (
                 <Link
-                  href="/settings"
+                  href={settingsOpen ? "/" : "/settings"}
                   className="rounded-full border border-white/10 px-3 py-2 text-sm text-zinc-200 transition hover:border-white/25 hover:text-white sm:px-4"
                 >
-                  Settings
+                  {settingsOpen ? "Close" : "Settings"}
                 </Link>
               )}
               <Link
