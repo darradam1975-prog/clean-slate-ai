@@ -2,132 +2,9 @@
 
 import { NoAiMark } from "@/components/NoAiMark";
 import { useRouter } from "next/navigation";
-import { FormEvent, useEffect, useRef, useState } from "react";
-
-declare global {
-  interface Window {
-    google?: {
-      picker: {
-        PickerBuilder: new () => GooglePickerBuilder;
-        ViewId: { DOCS_IMAGES: string; DOCS_VIDEOS: string };
-        Action: { PICKED: string; CANCEL: string };
-        Feature: { MULTISELECT_ENABLED: string };
-      };
-    };
-    gapi?: {
-      load: (
-        api: string,
-        options:
-          | (() => void)
-          | {
-              callback: () => void;
-              onerror?: () => void;
-            },
-      ) => void;
-    };
-  }
-}
-
-type GooglePickerBuilder = {
-  addView: (view: unknown) => GooglePickerBuilder;
-  setOAuthToken: (token: string) => GooglePickerBuilder;
-  setDeveloperKey: (key: string) => GooglePickerBuilder;
-  setCallback: (cb: (data: GooglePickerResponse) => void) => GooglePickerBuilder;
-  enableFeature: (feature: string) => GooglePickerBuilder;
-  build: () => { setVisible: (visible: boolean) => void };
-};
-
-type GooglePickerResponse = {
-  action: string;
-  docs?: Array<{ id: string; name: string; mimeType: string }>;
-};
+import { FormEvent, useRef, useState } from "react";
 
 const MAX_VIDEO_SECONDS = 30;
-const GAPI_SRC = "https://apis.google.com/js/api.js";
-const GIS_SRC = "https://accounts.google.com/gsi/client";
-
-function loadScript(src: string): Promise<void> {
-  const existing = document.querySelector<HTMLScriptElement>(
-    `script[data-google-src="${src}"]`,
-  );
-  if (existing?.dataset.loaded === "1") return Promise.resolve();
-
-  return new Promise((resolve, reject) => {
-    if (existing) {
-      existing.addEventListener("load", () => resolve(), { once: true });
-      existing.addEventListener("error", () => reject(new Error("Could not load Google.")), {
-        once: true,
-      });
-      return;
-    }
-
-    const script = document.createElement("script");
-    script.src = src;
-    script.async = true;
-    script.dataset.googleSrc = src;
-    script.onload = () => {
-      script.dataset.loaded = "1";
-      resolve();
-    };
-    script.onerror = () => reject(new Error("Could not load Google. Check your connection."));
-    document.head.appendChild(script);
-  });
-}
-
-function waitForPicker(): Promise<void> {
-  if (window.google?.picker) return Promise.resolve();
-
-  return new Promise((resolve, reject) => {
-    const timer = window.setTimeout(() => {
-      reject(new Error("Google Drive picker timed out. Try again."));
-    }, 20000);
-
-    window.gapi?.load("picker", {
-      callback: () => {
-        const started = Date.now();
-        const poll = () => {
-          if (window.google?.picker) {
-            window.clearTimeout(timer);
-            resolve();
-            return;
-          }
-          if (Date.now() - started > 4000) {
-            window.clearTimeout(timer);
-            reject(new Error("Google Drive picker did not start."));
-            return;
-          }
-          window.setTimeout(poll, 50);
-        };
-        poll();
-      },
-      onerror: () => {
-        window.clearTimeout(timer);
-        reject(new Error("Google Drive picker failed to load."));
-      },
-    });
-  });
-}
-
-async function ensureGooglePicker(): Promise<void> {
-  await loadScript(GAPI_SRC);
-  await loadScript(GIS_SRC);
-  const started = Date.now();
-  while (!window.gapi) {
-    if (Date.now() - started > 5000) {
-      throw new Error("Google scripts loaded, but the picker library is missing.");
-    }
-    await new Promise((resolve) => window.setTimeout(resolve, 50));
-  }
-  await waitForPicker();
-  const oauth = (
-    window as unknown as {
-      google?: { accounts?: { oauth2?: unknown } };
-    }
-  ).google?.accounts?.oauth2;
-  if (!oauth) {
-    throw new Error("Google sign-in did not load. Refresh the page and try again.");
-  }
-}
 
 async function extractVideoPreview(
   file: File,
@@ -188,63 +65,13 @@ export function UploadForm() {
   const [noAiMark, setNoAiMark] = useState(true);
   const [file, setFile] = useState<File | null>(null);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
-  const [source, setSource] = useState<"computer" | "google_drive">("computer");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
-  const [driveState, setDriveState] = useState<"idle" | "loading" | "ready" | "error">("idle");
   const [videoDuration, setVideoDuration] = useState<number | null>(null);
   const [videoPreview, setVideoPreview] = useState<Blob | null>(null);
-  const [googleClientId, setGoogleClientId] = useState<string | null>(null);
-  const [googleApiKey, setGoogleApiKey] = useState<string | null>(null);
-  const driveConfigured = Boolean(googleClientId && googleApiKey);
 
-  useEffect(() => {
-    let cancelled = false;
-    fetch("/api/settings/drive")
-      .then((response) => (response.ok ? response.json() : { enabled: false }))
-      .then((data) => {
-        if (cancelled || !data.enabled || !data.apiKey || !data.clientId) return;
-        setDriveState("loading");
-        setGoogleApiKey(data.apiKey);
-        setGoogleClientId(data.clientId);
-      })
-      .catch(() => {
-        setGoogleApiKey(null);
-        setGoogleClientId(null);
-      });
-    return () => {
-      cancelled = true;
-    };
-  }, []);
-
-  useEffect(() => {
-    if (!googleClientId || !googleApiKey) return;
-
-    let cancelled = false;
-    ensureGooglePicker()
-      .then(() => {
-        if (!cancelled) setDriveState("ready");
-      })
-      .catch((err: unknown) => {
-        if (cancelled) return;
-        setDriveState("error");
-        setError(
-          err instanceof Error
-            ? err.message
-            : "Google Drive picker failed to load.",
-        );
-      });
-
-    return () => {
-      cancelled = true;
-    };
-  }, [googleApiKey, googleClientId]);
-
-  async function handleFileChange(
-    selected: File | null,
-    nextSource: "computer" | "google_drive" = "computer",
-  ) {
+  async function handleFileChange(selected: File | null) {
     setError(null);
     setSuccess(null);
     setVideoDuration(null);
@@ -259,7 +86,6 @@ export function UploadForm() {
     }
 
     setFile(selected);
-    setSource(nextSource);
     setPreviewUrl(URL.createObjectURL(selected));
 
     if (selected.type.startsWith("video/")) {
@@ -273,97 +99,6 @@ export function UploadForm() {
     }
   }
 
-  async function openGoogleDrivePicker() {
-    if (!googleClientId || !googleApiKey) {
-      setError(
-        "Google Drive import is turned off. The site owner can enable it in Settings with a Google API key.",
-      );
-      return;
-    }
-
-    if (!window.google?.picker) {
-      setDriveState("loading");
-      try {
-        await ensureGooglePicker();
-        setDriveState("ready");
-      } catch (err) {
-        setDriveState("error");
-        setError(
-          err instanceof Error
-            ? err.message
-            : "Google Drive picker failed to load.",
-        );
-        return;
-      }
-    }
-
-    const tokenClient = (
-      window as unknown as {
-        google: {
-          accounts: {
-            oauth2: {
-              initTokenClient: (config: {
-                client_id: string;
-                scope: string;
-                callback: (response: { access_token?: string; error?: string }) => void;
-              }) => { requestAccessToken: () => void };
-            };
-          };
-        };
-      }
-    ).google.accounts.oauth2.initTokenClient({
-      client_id: googleClientId,
-      scope: "https://www.googleapis.com/auth/drive.readonly",
-      callback: (tokenResponse) => {
-        if (!tokenResponse.access_token) {
-          setError("Google sign-in was cancelled.");
-          return;
-        }
-
-        const picker = new window.google!.picker.PickerBuilder()
-          .addView(window.google!.picker.ViewId.DOCS_IMAGES)
-          .addView(window.google!.picker.ViewId.DOCS_VIDEOS)
-          .setOAuthToken(tokenResponse.access_token)
-          .setDeveloperKey(googleApiKey)
-          .setCallback(async (data: GooglePickerResponse) => {
-            if (
-              data.action !== window.google!.picker.Action.PICKED ||
-              !data.docs?.[0]
-            ) {
-              return;
-            }
-
-            const doc = data.docs[0];
-            try {
-              const response = await fetch(
-                `https://www.googleapis.com/drive/v3/files/${doc.id}?alt=media`,
-                {
-                  headers: { Authorization: `Bearer ${tokenResponse.access_token}` },
-                },
-              );
-
-              if (!response.ok) throw new Error("Could not download from Google Drive.");
-
-              const blob = await response.blob();
-              const driveFile = new File([blob], doc.name, { type: doc.mimeType });
-              await handleFileChange(driveFile, "google_drive");
-            } catch (err) {
-              setError(
-                err instanceof Error
-                  ? err.message
-                  : "Failed to import from Google Drive.",
-              );
-            }
-          })
-          .build();
-
-        picker.setVisible(true);
-      },
-    });
-
-    tokenClient.requestAccessToken();
-  }
-
   async function handleSubmit(event: FormEvent) {
     event.preventDefault();
     setError(null);
@@ -375,7 +110,7 @@ export function UploadForm() {
     }
 
     if (!file) {
-      setError("Choose a file from your computer or Google Drive.");
+      setError("Choose a file from your computer.");
       return;
     }
 
@@ -395,7 +130,6 @@ export function UploadForm() {
       const formData = new FormData();
       formData.append("title", title.trim());
       formData.append("file", file);
-      formData.append("source", source);
       formData.append("declaredAi", declaredAi ? "1" : "0");
       formData.append("noAiMark", noAiMark ? "1" : "0");
 
@@ -507,40 +241,14 @@ export function UploadForm() {
 
       <div className="space-y-3">
         <p className="text-sm font-medium text-zinc-200">Media</p>
-        <div className="grid gap-3 sm:grid-cols-2">
-          <button
-            type="button"
-            onClick={() => fileInputRef.current?.click()}
-            className="rounded-xl border border-dashed border-violet-400/40 bg-violet-500/5 px-4 py-6 text-sm text-violet-100 transition hover:border-violet-300/70 hover:bg-violet-500/10"
-          >
-            Upload from computer
-          </button>
-          <button
-            type="button"
-            onClick={openGoogleDrivePicker}
-            disabled={!driveConfigured}
-            title={
-              driveConfigured
-                ? "Pick an image or video from Google Drive"
-                : "Not configured — use Upload from computer"
-            }
-            className={`rounded-xl border border-dashed px-4 py-6 text-sm transition ${
-              driveConfigured
-                ? "border-fuchsia-400/40 bg-fuchsia-500/5 text-fuchsia-100 hover:border-fuchsia-300/70 hover:bg-fuchsia-500/10"
-                : "cursor-not-allowed border-white/10 bg-white/[0.02] text-zinc-500"
-            }`}
-          >
-            {driveState === "loading" ? "Loading Google Drive..." : "Import from Google Drive"}
-            {!driveConfigured && (
-              <span className="mt-1 block text-xs text-zinc-600">Not configured</span>
-            )}
-          </button>
-        </div>
-        <p className="text-xs text-zinc-500">
-          {driveConfigured
-            ? "Choose a file from your computer or import from Google Drive."
-            : "Upload from computer works now. Google Drive turns on from Settings."}
-        </p>
+        <button
+          type="button"
+          onClick={() => fileInputRef.current?.click()}
+          className="w-full rounded-xl border border-dashed border-violet-400/40 bg-violet-500/5 px-4 py-6 text-sm text-violet-100 transition hover:border-violet-300/70 hover:bg-violet-500/10"
+        >
+          Upload from computer
+        </button>
+        <p className="text-xs text-zinc-500">Images and short videos from your computer.</p>
         <input
           ref={fileInputRef}
           type="file"
@@ -551,7 +259,6 @@ export function UploadForm() {
         {file && (
           <p className="text-sm text-zinc-400">
             Selected: <span className="text-zinc-200">{file.name}</span>
-            {source === "google_drive" ? " (Google Drive)" : ""}
           </p>
         )}
       </div>

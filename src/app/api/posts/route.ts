@@ -50,7 +50,6 @@ export async function POST(request: Request) {
   try {
     const formData = await request.formData();
     const title = String(formData.get("title") ?? "");
-    const source = String(formData.get("source") ?? "computer");
     const declaredAiRaw = formData.get("declaredAi");
     const userDeclaredAi =
       declaredAiRaw === "1" ||
@@ -159,7 +158,7 @@ export async function POST(request: Request) {
         sfwConfidence: sfwResult.confidence,
         sfwSignals: JSON.stringify(sfwResult.signals),
         status: "approved",
-        source: source === "google_drive" ? "google_drive" : "computer",
+        source: "computer",
         userId: user.id,
       },
       include: {
