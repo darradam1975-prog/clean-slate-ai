@@ -15,15 +15,15 @@ declare global {
       };
     };
     gapi?: {
-      load: (api: string, callback: () => void) => void;
-      client: {
-        init: (config: { apiKey?: string; discoveryDocs?: string[] }) => Promise<void>;
-        drive: {
-          files: {
-            get: (params: { fileId: string; alt: string }) => Promise<{ body: string }>;
-          };
-        };
-      };
+      load: (
+        api: string,
+        options:
+          | (() => void)
+          | {
+              callback: () => void;
+              onerror?: () => void;
+            },
+      ) => void;
     };
   }
 }
@@ -43,6 +43,91 @@ type GooglePickerResponse = {
 };
 
 const MAX_VIDEO_SECONDS = 30;
+const GAPI_SRC = "https://apis.google.com/js/api.js";
+const GIS_SRC = "https://accounts.google.com/gsi/client";
+
+function loadScript(src: string): Promise<void> {
+  const existing = document.querySelector<HTMLScriptElement>(
+    `script[data-google-src="${src}"]`,
+  );
+  if (existing?.dataset.loaded === "1") return Promise.resolve();
+
+  return new Promise((resolve, reject) => {
+    if (existing) {
+      existing.addEventListener("load", () => resolve(), { once: true });
+      existing.addEventListener("error", () => reject(new Error("Could not load Google.")), {
+        once: true,
+      });
+      return;
+    }
+
+    const script = document.createElement("script");
+    script.src = src;
+    script.async = true;
+    script.dataset.googleSrc = src;
+    script.onload = () => {
+      script.dataset.loaded = "1";
+      resolve();
+    };
+    script.onerror = () => reject(new Error("Could not load Google. Check your connection."));
+    document.head.appendChild(script);
+  });
+}
+
+function waitForPicker(): Promise<void> {
+  if (window.google?.picker) return Promise.resolve();
+
+  return new Promise((resolve, reject) => {
+    const timer = window.setTimeout(() => {
+      reject(new Error("Google Drive picker timed out. Try again."));
+    }, 20000);
+
+    window.gapi?.load("picker", {
+      callback: () => {
+        const started = Date.now();
+        const poll = () => {
+          if (window.google?.picker) {
+            window.clearTimeout(timer);
+            resolve();
+            return;
+          }
+          if (Date.now() - started > 4000) {
+            window.clearTimeout(timer);
+            reject(new Error("Google Drive picker did not start."));
+            return;
+          }
+          window.setTimeout(poll, 50);
+        };
+        poll();
+      },
+      onerror: () => {
+        window.clearTimeout(timer);
+        reject(new Error("Google Drive picker failed to load."));
+      },
+    });
+  });
+}
+
+async function ensureGooglePicker(): Promise<void> {
+  await loadScript(GAPI_SRC);
+  await loadScript(GIS_SRC);
+  const started = Date.now();
+  while (!window.gapi) {
+    if (Date.now() - started > 5000) {
+      throw new Error("Google scripts loaded, but the picker library is missing.");
+    }
+    await new Promise((resolve) => window.setTimeout(resolve, 50));
+  }
+  await waitForPicker();
+  const oauth = (
+    window as unknown as {
+      google?: { accounts?: { oauth2?: unknown } };
+    }
+  ).google?.accounts?.oauth2;
+  if (!oauth) {
+    throw new Error("Google sign-in did not load. Refresh the page and try again.");
+  }
+}
 
 async function extractVideoPreview(
   file: File,
@@ -107,7 +192,7 @@ export function UploadForm() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
-  const [driveReady, setDriveReady] = useState(false);
+  const [driveState, setDriveState] = useState<"idle" | "loading" | "ready" | "error">("idle");
   const [videoDuration, setVideoDuration] = useState<number | null>(null);
   const [videoPreview, setVideoPreview] = useState<Blob | null>(null);
   const [googleClientId, setGoogleClientId] = useState<string | null>(null);
@@ -120,6 +205,7 @@ export function UploadForm() {
       .then((response) => (response.ok ? response.json() : { enabled: false }))
       .then((data) => {
         if (cancelled || !data.enabled || !data.apiKey || !data.clientId) return;
+        setDriveState("loading");
         setGoogleApiKey(data.apiKey);
         setGoogleClientId(data.clientId);
       })
@@ -135,26 +221,23 @@ export function UploadForm() {
   useEffect(() => {
     if (!googleClientId || !googleApiKey) return;
 
-    const pickerScript = document.createElement("script");
-    pickerScript.src = "https://apis.google.com/js/api.js";
-    pickerScript.async = true;
-    pickerScript.onload = () => {
-      window.gapi?.load("client:picker", async () => {
-        try {
-          await window.gapi?.client.init({
-            apiKey: googleApiKey,
-            discoveryDocs: ["https://www.googleapis.com/discovery/v1/apis/drive/v3/rest"],
-          });
-          setDriveReady(true);
-        } catch {
-          setDriveReady(false);
-        }
+    let cancelled = false;
+    ensureGooglePicker()
+      .then(() => {
+        if (!cancelled) setDriveState("ready");
+      })
+      .catch((err: unknown) => {
+        if (cancelled) return;
+        setDriveState("error");
+        setError(
+          err instanceof Error
+            ? err.message
+            : "Google Drive picker failed to load.",
+        );
       });
-    };
-    document.body.appendChild(pickerScript);
 
     return () => {
-      document.body.removeChild(pickerScript);
+      cancelled = true;
     };
   }, [googleApiKey, googleClientId]);
 
@@ -198,9 +281,20 @@ export function UploadForm() {
       return;
     }
 
-    if (!driveReady || !window.google?.picker) {
-      setError("Google Drive picker is still loading. Try again in a moment.");
-      return;
+    if (!window.google?.picker) {
+      setDriveState("loading");
+      try {
+        await ensureGooglePicker();
+        setDriveState("ready");
+      } catch (err) {
+        setDriveState("error");
+        setError(
+          err instanceof Error
+            ? err.message
+            : "Google Drive picker failed to load.",
+        );
+        return;
+      }
     }
 
     const tokenClient = (
@@ -436,7 +530,7 @@ export function UploadForm() {
                 : "cursor-not-allowed border-white/10 bg-white/[0.02] text-zinc-500"
             }`}
           >
-            Import from Google Drive
+            {driveState === "loading" ? "Loading Google Drive..." : "Import from Google Drive"}
             {!driveConfigured && (
               <span className="mt-1 block text-xs text-zinc-600">Not configured</span>
             )}
