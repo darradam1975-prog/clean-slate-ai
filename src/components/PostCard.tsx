@@ -1,23 +1,12 @@
 import { Avatar } from "@/components/Avatar";
+import { ExpandableImage } from "@/components/ExpandableImage";
 import { NoAiMark } from "@/components/NoAiMark";
-import type { AvatarKind } from "@/lib/identity";
+import { PostActions } from "@/components/PostActions";
+import type { PostCardPost } from "@/lib/post-social";
 import Link from "next/link";
 
 type PostCardProps = {
-  post: {
-    id: string;
-    title: string;
-    mediaType: string;
-    mediaPath: string;
-    mimeType: string;
-    durationSeconds: number | null;
-    createdAt: string;
-    user: {
-      username: string;
-      avatarKind: AvatarKind;
-      avatarStyle: string;
-    };
-  };
+  post: PostCardPost;
 };
 
 function formatDate(value: string) {
@@ -42,14 +31,13 @@ export function PostCard({ post }: PostCardProps) {
             className="h-full w-full object-cover"
           />
         ) : (
-          // eslint-disable-next-line @next/next/no-img-element
-          <img
+          <ExpandableImage
             src={mediaUrl}
             alt={post.title}
-            className="h-full w-full object-cover transition duration-500 group-hover:scale-[1.02]"
+            showMark={post.noAiMark}
           />
         )}
-        <NoAiMark />
+        {post.noAiMark && <NoAiMark />}
       </div>
 
       <div className="space-y-2 p-4">
@@ -76,6 +64,13 @@ export function PostCard({ post }: PostCardProps) {
             Short clip · {post.durationSeconds.toFixed(1)}s
           </p>
         )}
+        <PostActions
+          postId={post.id}
+          likeCount={post.likeCount}
+          liked={post.liked}
+          comments={post.comments}
+          viewerUsername={post.viewerUsername}
+        />
       </div>
     </article>
   );

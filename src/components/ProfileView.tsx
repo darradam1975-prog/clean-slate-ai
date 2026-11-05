@@ -1,22 +1,12 @@
 import { Avatar } from "@/components/Avatar";
+import { FriendButton } from "@/components/FriendButton";
 import { PostCard } from "@/components/PostCard";
+import type { FriendUiStatus } from "@/lib/friends";
 import type { AvatarKind } from "@/lib/identity";
+import type { PostCardPost } from "@/lib/post-social";
 import Link from "next/link";
 
-type ProfilePost = {
-  id: string;
-  title: string;
-  mediaType: string;
-  mediaPath: string;
-  mimeType: string;
-  durationSeconds: number | null;
-  createdAt: string;
-  user: {
-    username: string;
-    avatarKind: AvatarKind;
-    avatarStyle: string;
-  };
-};
+type ProfilePost = PostCardPost;
 
 type ProfileViewProps = {
   user: {
@@ -27,6 +17,12 @@ type ProfileViewProps = {
   };
   posts: ProfilePost[];
   isOwnProfile?: boolean;
+  social: {
+    friendCount: number;
+    status: FriendUiStatus;
+    friendshipId: string | null;
+    signedIn: boolean;
+  };
 };
 
 function formatJoinDate(value: string) {
@@ -37,7 +33,12 @@ function formatJoinDate(value: string) {
   }).format(new Date(value));
 }
 
-export function ProfileView({ user, posts, isOwnProfile = false }: ProfileViewProps) {
+export function ProfileView({
+  user,
+  posts,
+  isOwnProfile = false,
+  social,
+}: ProfileViewProps) {
   return (
     <>
       <section className="mb-10 rounded-3xl border border-white/10 bg-white/[0.03] p-6 sm:p-8">
@@ -60,6 +61,9 @@ export function ProfileView({ user, posts, isOwnProfile = false }: ProfileViewPr
                 Joined {formatJoinDate(user.createdAt)}
                 <span className="text-zinc-600">
                   {" "}
+                  · {social.friendCount}{" "}
+                  {social.friendCount === 1 ? "friend" : "friends"}
+                  {" "}
                   · {user.avatarStyle} {user.avatarKind}
                 </span>
               </p>
@@ -73,22 +77,22 @@ export function ProfileView({ user, posts, isOwnProfile = false }: ProfileViewPr
                   href="/upload"
                   className="rounded-full bg-gradient-to-r from-violet-500 to-fuchsia-500 px-5 py-2.5 text-sm font-medium text-white shadow-lg shadow-violet-500/25"
                 >
-                  Upload media
+                  Share AI art
                 </Link>
                 <Link
-                  href="/"
+                  href="/friends"
                   className="rounded-full border border-white/10 px-5 py-2.5 text-sm text-zinc-200"
                 >
-                  Back to gallery
+                  Friends
                 </Link>
               </>
             ) : (
-              <Link
-                href="/"
-                className="rounded-full border border-white/10 px-5 py-2.5 text-sm text-zinc-200"
-              >
-                Back to gallery
-              </Link>
+              <FriendButton
+                username={user.username}
+                status={social.status}
+                friendshipId={social.friendshipId}
+                signedIn={social.signedIn}
+              />
             )}
           </div>
         </div>
@@ -115,15 +119,15 @@ export function ProfileView({ user, posts, isOwnProfile = false }: ProfileViewPr
             </p>
             <p className="mt-2 text-sm text-zinc-400">
               {isOwnProfile
-                ? "Share your first safe-for-work AI creation."
-                : "This creator has not shared anything in the gallery yet."}
+                ? "Share your first piece of AI art."
+                : "This person has not shared any AI art yet."}
             </p>
             {isOwnProfile && (
               <Link
                 href="/upload"
                 className="mt-6 inline-flex rounded-full bg-gradient-to-r from-violet-500 to-fuchsia-500 px-5 py-2.5 text-sm font-medium text-white"
               >
-                Upload media
+                Share AI art
               </Link>
             )}
           </div>

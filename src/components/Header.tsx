@@ -17,25 +17,30 @@ type User = {
 export function Header() {
   const router = useRouter();
   const [user, setUser] = useState<User | null>(null);
+  const [incomingFriendRequests, setIncomingFriendRequests] = useState(0);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     fetch("/api/auth/me")
       .then((res) => (res.ok ? res.json() : { user: null }))
-      .then((data) => setUser(data.user))
+      .then((data) => {
+        setUser(data.user);
+        setIncomingFriendRequests(data.incomingFriendRequests ?? 0);
+      })
       .finally(() => setLoading(false));
   }, []);
 
   async function handleLogout() {
     await fetch("/api/auth/logout", { method: "POST" });
     setUser(null);
+    setIncomingFriendRequests(0);
     router.push("/");
     router.refresh();
   }
 
   return (
     <header className="sticky top-0 z-50 border-b border-violet-500/20 bg-[#0b0d14]/90 backdrop-blur-xl">
-      <div className="mx-auto flex h-16 max-w-6xl items-center justify-between px-4 sm:px-6">
+      <div className="mx-auto flex min-h-16 max-w-6xl flex-wrap items-center justify-between gap-y-2 px-4 py-2 sm:px-6">
         <Link href="/" className="group flex items-center gap-2">
           <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-br from-violet-500 to-fuchsia-500 text-xs font-bold text-white shadow-lg shadow-violet-500/30">
             CSA
@@ -44,11 +49,11 @@ export function Header() {
             <p className="text-lg font-semibold tracking-tight text-white">
               Clean Slate AI
             </p>
-            <p className="text-xs text-violet-200/70">SFW AI gallery</p>
+            <p className="text-xs text-violet-200/70">AI art network</p>
           </div>
         </Link>
 
-        <nav className="flex items-center gap-2 sm:gap-3">
+        <nav className="flex flex-wrap items-center justify-end gap-2">
           {!loading && user ? (
             <>
               <Link
@@ -65,19 +70,30 @@ export function Header() {
               </Link>
               <Link
                 href="/profile"
-                className="rounded-full border border-white/10 px-4 py-2 text-sm text-zinc-200 transition hover:border-white/25 hover:text-white sm:hidden"
+                className="rounded-full border border-white/10 px-3 py-2 text-sm text-zinc-200 transition hover:border-white/25 hover:text-white sm:hidden sm:px-4"
               >
                 Profile
               </Link>
               <Link
-                href="/upload"
-                className="rounded-full bg-gradient-to-r from-violet-500 to-fuchsia-500 px-4 py-2 text-sm font-medium text-white shadow-md shadow-violet-500/25 transition hover:brightness-110"
+                href="/friends"
+                className="relative rounded-full border border-white/10 px-3 py-2 text-sm text-zinc-200 transition hover:border-white/25 hover:text-white sm:px-4"
               >
-                Upload
+                Friends
+                {incomingFriendRequests > 0 && (
+                  <span className="absolute -right-1 -top-1 flex h-4 min-w-4 items-center justify-center rounded-full bg-fuchsia-500 px-1 text-[10px] font-semibold text-white">
+                    {incomingFriendRequests}
+                  </span>
+                )}
+              </Link>
+              <Link
+                href="/upload"
+                className="rounded-full bg-gradient-to-r from-violet-500 to-fuchsia-500 px-3 py-2 text-sm font-medium text-white shadow-md shadow-violet-500/25 transition hover:brightness-110 sm:px-4"
+              >
+                Share
               </Link>
               <button
                 onClick={handleLogout}
-                className="rounded-full border border-white/10 px-4 py-2 text-sm text-zinc-300 transition hover:border-white/25 hover:text-white"
+                className="rounded-full border border-white/10 px-3 py-2 text-sm text-zinc-300 transition hover:border-white/25 hover:text-white sm:px-4"
               >
                 Sign out
               </button>

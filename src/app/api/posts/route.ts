@@ -9,23 +9,36 @@ import {
 } from "@/lib/sfw-moderation";
 import { validateTitle } from "@/lib/validation";
 import { prisma } from "@/lib/db";
+import { getAcceptedFriendIds } from "@/lib/friends";
+import { postSocialInclude, serializePost } from "@/lib/post-social";
 
-export async function GET() {
+export async function GET(request: Request) {
+  const feed = new URL(request.url).searchParams.get("feed");
+  const viewer = await getCurrentUser();
+  const where: {
+    status: string;
+    userId?: { in: string[] };
+  } = { status: "approved" };
+
+  if (feed === "friends") {
+    if (!viewer) {
+      return NextResponse.json(
+        { error: "Sign in to see your friends feed." },
+        { status: 401 },
+      );
+    }
+    where.userId = { in: await getAcceptedFriendIds(viewer.id) };
+  }
+
   const posts = await prisma.post.findMany({
-    where: { status: "approved" },
+    where,
     orderBy: { createdAt: "desc" },
-    include: {
-      user: {
-        select: {
-          username: true,
-          avatarKind: true,
-          avatarStyle: true,
-        },
-      },
-    },
+    include: postSocialInclude(viewer?.id ?? null),
   });
 
-  return NextResponse.json({ posts });
+  return NextResponse.json({
+    posts: posts.map((post) => serializePost(post, viewer?.username ?? null)),
+  });
 }
 
 export async function POST(request: Request) {
@@ -43,6 +56,12 @@ export async function POST(request: Request) {
       declaredAiRaw === "1" ||
       declaredAiRaw === "true" ||
       declaredAiRaw === "on";
+    const noAiRaw = formData.get("noAiMark");
+    const noAiMark = !(
+      noAiRaw === "0" ||
+      noAiRaw === "false" ||
+      noAiRaw === "off"
+    );
     const durationRaw = formData.get("durationSeconds");
     const file = formData.get("file");
     const previewFrame = formData.get("previewFrame");
@@ -75,9 +94,11 @@ export async function POST(request: Request) {
 
     if (mimeType.startsWith("image/")) {
       sfwResult = await moderateImage(buffer, title);
-      const watermarked = await applyNoAiWatermark(buffer, mimeType);
-      buffer = Buffer.from(watermarked.buffer);
-      mimeType = watermarked.mimeType;
+      if (noAiMark) {
+        const watermarked = await applyNoAiWatermark(buffer, mimeType);
+        buffer = Buffer.from(watermarked.buffer);
+        mimeType = watermarked.mimeType;
+      }
     } else {
       const titleCheck = moderateTitleOnly(title);
       if (!titleCheck.isSfw) {
@@ -133,6 +154,7 @@ export async function POST(request: Request) {
         aiConfidence: 1,
         aiSignals: JSON.stringify(["Trust mod: creator confirmed AI-generated"]),
         userDeclaredAi: true,
+        noAiMark,
         isSfw: sfwResult.isSfw,
         sfwConfidence: sfwResult.confidence,
         sfwSignals: JSON.stringify(sfwResult.signals),

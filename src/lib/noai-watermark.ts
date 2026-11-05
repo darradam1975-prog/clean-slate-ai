@@ -31,8 +31,8 @@ export async function applyNoAiWatermark(
         <style>
           .mark { fill: rgba(255,255,255,0.42); font-family: Arial, Helvetica, sans-serif; font-weight: 700; }
         </style>
-        <text x="${width - pad}" y="${height - pad}" text-anchor="end" class="mark" font-size="${fontSize}">noAI</text>
-        <text x="${pad}" y="${pad + smallSize}" class="mark" font-size="${smallSize}">noAI</text>
+        <text x="${width - pad}" y="${height - pad}" text-anchor="end" class="mark" font-size="${fontSize}">✓ noAI</text>
+        <text x="${pad}" y="${pad + smallSize}" class="mark" font-size="${smallSize}">✓ noAI</text>
       </svg>
     `;
 

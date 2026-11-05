@@ -14,9 +14,9 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Clean Slate AI — SFW AI Photo Gallery",
+  title: "Clean Slate AI — AI art network",
   description:
-    "Clean Slate AI — share safe-for-work AI generations and short clips with automatic AI detection and moderation.",
+    "A social network for sharing AI art. Post to the feed, keep a profile, and send friend requests. The noAI checkmark is on by default.",
 };
 
 export default function RootLayout({

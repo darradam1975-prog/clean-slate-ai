@@ -100,6 +100,7 @@ export function UploadForm() {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [title, setTitle] = useState("");
   const [declaredAi, setDeclaredAi] = useState(false);
+  const [noAiMark, setNoAiMark] = useState(true);
   const [file, setFile] = useState<File | null>(null);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const [source, setSource] = useState<"computer" | "google_drive">("computer");
@@ -283,6 +284,7 @@ export function UploadForm() {
       formData.append("file", file);
       formData.append("source", source);
       formData.append("declaredAi", declaredAi ? "1" : "0");
+      formData.append("noAiMark", noAiMark ? "1" : "0");
 
       if (videoDuration != null) {
         formData.append("durationSeconds", String(videoDuration));
@@ -310,6 +312,7 @@ export function UploadForm() {
       setSuccess("Upload approved and published!");
       setTitle("");
       setDeclaredAi(false);
+      setNoAiMark(true);
       setFile(null);
       setPreviewUrl(null);
       setVideoDuration(null);
@@ -332,9 +335,10 @@ export function UploadForm() {
       <div>
         <h1 className="text-2xl font-semibold text-white">Share your creation</h1>
         <p className="mt-2 text-sm text-zinc-400">
-          This gallery uses trust moderation — you confirm every upload is AI-made.
-          Images are stamped with a noAI protection mark. Content must be safe for
-          work. Short video clips up to 30 seconds are welcome.
+          Share AI art with the feed. Confirm the piece is AI-made. The noAI
+          checkmark is on by default and stamps a protection mark on the image.
+          Uncheck it to publish without the mark. Content must be safe for work.
+          Short video clips up to 30 seconds are welcome.
         </p>
       </div>
 
@@ -353,6 +357,22 @@ export function UploadForm() {
           <span className="mt-1 block text-xs leading-relaxed text-zinc-500">
             Required trust confirmation. By checking this you confirm the upload is
             AI-generated and agree it will carry a noAI protection mark.
+          </span>
+        </span>
+      </label>
+
+      <label className="flex cursor-pointer items-start gap-3 rounded-xl border border-white/10 bg-white/[0.03] px-4 py-3 transition hover:border-white/20">
+        <input
+          type="checkbox"
+          checked={noAiMark}
+          onChange={(e) => setNoAiMark(e.target.checked)}
+          className="mt-1 h-4 w-4 rounded border-white/20 bg-black/40 text-violet-500 focus:ring-violet-400/40"
+        />
+        <span>
+          <span className="text-sm font-medium text-zinc-200">noAI checkmark</span>
+          <span className="mt-1 block text-xs leading-relaxed text-zinc-500">
+            On by default. Stamps a noAI protection mark on the image. Uncheck to
+            share this piece without the mark.
           </span>
         </span>
       </label>
@@ -431,7 +451,7 @@ export function UploadForm() {
             // eslint-disable-next-line @next/next/no-img-element
             <img src={previewUrl} alt="Preview" className="max-h-80 w-full object-contain" />
           )}
-          <NoAiMark />
+          {noAiMark && <NoAiMark />}
         </div>
       )}
 
@@ -452,7 +472,7 @@ export function UploadForm() {
         disabled={loading}
         className="w-full rounded-xl bg-gradient-to-r from-violet-500 to-fuchsia-500 px-4 py-3 text-sm font-semibold text-white shadow-lg shadow-violet-500/30 transition hover:brightness-110 disabled:cursor-not-allowed disabled:opacity-60"
       >
-        {loading ? "Uploading..." : "Publish to gallery"}
+        {loading ? "Uploading..." : "Publish to feed"}
       </button>
     </form>
   );

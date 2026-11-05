@@ -8,14 +8,19 @@ datasource db {
 }
 
 model User {
-  id           String   @id @default(cuid())
-  email        String   @unique
-  passwordHash String
-  username     String   @unique
-  avatarKind   String
-  avatarStyle  String
-  createdAt    DateTime @default(now())
-  posts        Post[]
+  id               String       @id @default(cuid())
+  email            String       @unique
+  passwordHash     String
+  username         String       @unique
+  avatarKind       String
+  avatarStyle      String
+  createdAt        DateTime     @default(now())
+  posts            Post[]
+  sentRequests     Friendship[] @relation("FriendRequestsSent")
+  receivedRequests Friendship[] @relation("FriendRequestsReceived")
+  passwordResets   PasswordReset[]
+  likes            Like[]
+  comments         Comment[]
 }
 
 model Post {
@@ -30,6 +35,7 @@ model Post {
   aiConfidence    Float
   aiSignals       String
   userDeclaredAi  Boolean  @default(false)
+  noAiMark        Boolean  @default(true)
   isSfw           Boolean
   sfwConfidence   Float
   sfwSignals      String
@@ -38,7 +44,59 @@ model Post {
   createdAt       DateTime @default(now())
   userId          String
   user            User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  likes           Like[]
+  comments        Comment[]
 
   @@index([createdAt])
   @@index([userId])
+}
+
+model Friendship {
+  id          String   @id @default(cuid())
+  requesterId String
+  addresseeId String
+  status      String   @default("pending")
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  requester   User     @relation("FriendRequestsSent", fields: [requesterId], references: [id], onDelete: Cascade)
+  addressee   User     @relation("FriendRequestsReceived", fields: [addresseeId], references: [id], onDelete: Cascade)
+
+  @@unique([requesterId, addresseeId])
+  @@index([addresseeId, status])
+  @@index([requesterId, status])
+}
+
+model PasswordReset {
+  id        String   @id @default(cuid())
+  userId    String
+  tokenHash String   @unique
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+}
+
+model Like {
+  id        String   @id @default(cuid())
+  userId    String
+  postId    String
+  createdAt DateTime @default(now())
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  post      Post     @relation(fields: [postId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, postId])
+  @@index([postId])
+}
+
+model Comment {
+  id        String   @id @default(cuid())
+  body      String
+  userId    String
+  postId    String
+  createdAt DateTime @default(now())
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  post      Post     @relation(fields: [postId], references: [id], onDelete: Cascade)
+
+  @@index([postId, createdAt])
 }

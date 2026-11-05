@@ -97,9 +97,20 @@ export function AuthForm({ mode }: AuthFormProps) {
       </div>
 
       <div className="space-y-2">
-        <label htmlFor="password" className="text-sm font-medium text-zinc-200">
-          Password
-        </label>
+        <div className="flex items-center justify-between gap-3">
+          <label htmlFor="password" className="text-sm font-medium text-zinc-200">
+            Password
+          </label>
+          {mode === "login" && (
+            <button
+              type="button"
+              onClick={() => router.push("/forgot-password")}
+              className="text-sm font-medium text-violet-300 transition hover:text-violet-200"
+            >
+              Forgot password
+            </button>
+          )}
+        </div>
         <input
           id="password"
           type="password"

@@ -1,24 +1,42 @@
-import { readFileSync, writeFileSync } from "node:fs";
+import { existsSync, readFileSync, writeFileSync } from "node:fs";
 import path from "node:path";
 
 if (process.platform !== "win32") {
   process.exit(0);
 }
 
-const target = path.join(
-  process.cwd(),
-  "node_modules",
-  "@netlify",
-  "plugin-nextjs",
-  "dist",
-  "build",
-  "content",
-  "server.js",
-);
+const targets = [
+  path.join(
+    process.cwd(),
+    "node_modules",
+    "@netlify",
+    "plugin-nextjs",
+    "dist",
+    "build",
+    "content",
+    "server.js",
+  ),
+  path.join(
+    process.cwd(),
+    ".netlify",
+    "plugins",
+    "node_modules",
+    "@netlify",
+    "plugin-nextjs",
+    "dist",
+    "build",
+    "content",
+    "server.js",
+  ),
+].filter((candidate) => existsSync(candidate));
 
-let source = readFileSync(target, "utf8");
+if (targets.length === 0) {
+  console.log("Netlify Next plugin was not installed yet. Skipping Windows patch.");
+  process.exit(0);
+}
 
-const nodeModulesCpBlock = `    if (existsSync(join(srcDir, "node_modules"))) {
+const nodeModulesCpBlocks = [
+  `    if (existsSync(join(srcDir, "node_modules"))) {
       const filter = ctx.constants.IS_LOCAL ? void 0 : nodeModulesFilter;
       const src = join(srcDir, "node_modules");
       const dest = join(destDir, "node_modules");
@@ -28,7 +46,19 @@ const nodeModulesCpBlock = `    if (existsSync(join(srcDir, "node_modules"))) {
         force: true,
         filter
       });
-    }`;
+    }`,
+  `    if (existsSync(join(srcDir, "node_modules"))) {
+      const filter = ctx.constants.IS_LOCAL ? void 0 : nodeModulesFilter;
+      const src = join(srcDir, "node_modules");
+      const dest = join(destDir, "node_modules");
+      await cp(src, dest, {
+        recursive: true,
+        verbatimSymlinks: true,
+        force: true,
+        filter
+      });
+    }`,
+];
 
 const nodeModulesRobocopyBlock = `    if (existsSync(join(srcDir, "node_modules"))) {
       const src = join(srcDir, "node_modules");
@@ -46,16 +76,24 @@ const nodeModulesRobocopyBlock = `    if (existsSync(join(srcDir, "node_modules"
       }
     }`;
 
-if (source.includes(nodeModulesCpBlock)) {
-  source = source.replace(nodeModulesCpBlock, nodeModulesRobocopyBlock);
-}
+for (const target of targets) {
+  let source = readFileSync(target, "utf8");
 
-if (!source.includes('if (process.platform === "win32") return;')) {
-  source = source.replace(
-    "async function recreateNodeModuleSymlinks(src, dest, org) {",
-    'async function recreateNodeModuleSymlinks(src, dest, org) {\n  if (process.platform === "win32") return;',
-  );
-}
+  for (const block of nodeModulesCpBlocks) {
+    if (source.includes(block)) {
+      source = source.replace(block, nodeModulesRobocopyBlock);
+    }
+  }
 
-writeFileSync(target, source);
-console.log("Applied Netlify Windows deploy patch.");
+  if (!source.includes('if (process.platform === "win32") return;')) {
+    source = source.replace(
+      "async function recreateNodeModuleSymlinks(src, dest, org) {",
+      'async function recreateNodeModuleSymlinks(src, dest, org) {\n  if (process.platform === "win32") return;',
+    );
+  }
+
+  source = source.replaceAll("verbatimSymlinks: true", "verbatimSymlinks: false");
+
+  writeFileSync(target, source);
+  console.log(`Applied Netlify Windows deploy patch to ${target}`);
+}

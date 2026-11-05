@@ -2,7 +2,9 @@ import { Header } from "@/components/Header";
 import { ProfileView } from "@/components/ProfileView";
 import { getCurrentUser } from "@/lib/auth";
 import { prisma } from "@/lib/db";
+import { getProfileSocial } from "@/lib/friends";
 import type { AvatarKind } from "@/lib/identity";
+import { postSocialInclude, serializePost } from "@/lib/post-social";
 import { redirect } from "next/navigation";
 
 export const dynamic = "force-dynamic";
@@ -11,18 +13,12 @@ export default async function ProfilePage() {
   const user = await getCurrentUser();
   if (!user) redirect("/login");
 
+  const social = await getProfileSocial(user.id, user.id);
+
   const posts = await prisma.post.findMany({
     where: { userId: user.id, status: "approved" },
     orderBy: { createdAt: "desc" },
-    include: {
-      user: {
-        select: {
-          username: true,
-          avatarKind: true,
-          avatarStyle: true,
-        },
-      },
-    },
+    include: postSocialInclude(user.id),
   });
 
   return (
@@ -38,14 +34,13 @@ export default async function ProfilePage() {
             avatarStyle: user.avatarStyle,
             createdAt: user.createdAt.toISOString(),
           }}
-          posts={posts.map((post) => ({
-            ...post,
-            createdAt: post.createdAt.toISOString(),
-            user: {
-              ...post.user,
-              avatarKind: post.user.avatarKind as AvatarKind,
-            },
-          }))}
+          social={{
+            friendCount: social.friendCount,
+            status: social.status,
+            friendshipId: social.friendshipId,
+            signedIn: social.viewerSignedIn,
+          }}
+          posts={posts.map((post) => serializePost(post, user.username))}
         />
       </main>
     </div>

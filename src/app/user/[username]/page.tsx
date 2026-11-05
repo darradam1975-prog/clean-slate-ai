@@ -1,7 +1,10 @@
 import { Header } from "@/components/Header";
 import { ProfileView } from "@/components/ProfileView";
+import { getCurrentUser } from "@/lib/auth";
 import { prisma } from "@/lib/db";
+import { getProfileSocial } from "@/lib/friends";
 import type { AvatarKind } from "@/lib/identity";
+import { postSocialInclude, serializePost } from "@/lib/post-social";
 import { notFound } from "next/navigation";
 
 export const dynamic = "force-dynamic";
@@ -12,6 +15,7 @@ type UserProfilePageProps = {
 
 export default async function UserProfilePage({ params }: UserProfilePageProps) {
   const { username } = await params;
+  const viewer = await getCurrentUser();
 
   const user = await prisma.user.findUnique({
     where: { username },
@@ -26,18 +30,12 @@ export default async function UserProfilePage({ params }: UserProfilePageProps) 
 
   if (!user) notFound();
 
+  const social = await getProfileSocial(viewer?.id ?? null, user.id);
+
   const posts = await prisma.post.findMany({
     where: { userId: user.id, status: "approved" },
     orderBy: { createdAt: "desc" },
-    include: {
-      user: {
-        select: {
-          username: true,
-          avatarKind: true,
-          avatarStyle: true,
-        },
-      },
-    },
+    include: postSocialInclude(viewer?.id ?? null),
   });
 
   return (
@@ -46,20 +44,20 @@ export default async function UserProfilePage({ params }: UserProfilePageProps) 
       <Header />
       <main className="relative mx-auto max-w-6xl px-4 py-10 sm:px-6">
         <ProfileView
+          isOwnProfile={viewer?.id === user.id}
+          social={{
+            friendCount: social.friendCount,
+            status: social.status,
+            friendshipId: social.friendshipId,
+            signedIn: social.viewerSignedIn,
+          }}
           user={{
             username: user.username,
             avatarKind: user.avatarKind as AvatarKind,
             avatarStyle: user.avatarStyle,
             createdAt: user.createdAt.toISOString(),
           }}
-          posts={posts.map((post) => ({
-            ...post,
-            createdAt: post.createdAt.toISOString(),
-            user: {
-              ...post.user,
-              avatarKind: post.user.avatarKind as AvatarKind,
-            },
-          }))}
+          posts={posts.map((post) => serializePost(post, viewer?.username ?? null))}
         />
       </main>
     </div>

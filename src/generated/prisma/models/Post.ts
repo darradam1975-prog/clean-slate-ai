@@ -52,6 +52,7 @@ export type PostMinAggregateOutputType = {
   aiConfidence: number | null
   aiSignals: string | null
   userDeclaredAi: boolean | null
+  noAiMark: boolean | null
   isSfw: boolean | null
   sfwConfidence: number | null
   sfwSignals: string | null
@@ -73,6 +74,7 @@ export type PostMaxAggregateOutputType = {
   aiConfidence: number | null
   aiSignals: string | null
   userDeclaredAi: boolean | null
+  noAiMark: boolean | null
   isSfw: boolean | null
   sfwConfidence: number | null
   sfwSignals: string | null
@@ -94,6 +96,7 @@ export type PostCountAggregateOutputType = {
   aiConfidence: number
   aiSignals: number
   userDeclaredAi: number
+  noAiMark: number
   isSfw: number
   sfwConfidence: number
   sfwSignals: number
@@ -131,6 +134,7 @@ export type PostMinAggregateInputType = {
   aiConfidence?: true
   aiSignals?: true
   userDeclaredAi?: true
+  noAiMark?: true
   isSfw?: true
   sfwConfidence?: true
   sfwSignals?: true
@@ -152,6 +156,7 @@ export type PostMaxAggregateInputType = {
   aiConfidence?: true
   aiSignals?: true
   userDeclaredAi?: true
+  noAiMark?: true
   isSfw?: true
   sfwConfidence?: true
   sfwSignals?: true
@@ -173,6 +178,7 @@ export type PostCountAggregateInputType = {
   aiConfidence?: true
   aiSignals?: true
   userDeclaredAi?: true
+  noAiMark?: true
   isSfw?: true
   sfwConfidence?: true
   sfwSignals?: true
@@ -281,6 +287,7 @@ export type PostGroupByOutputType = {
   aiConfidence: number
   aiSignals: string
   userDeclaredAi: boolean
+  noAiMark: boolean
   isSfw: boolean
   sfwConfidence: number
   sfwSignals: string
@@ -325,6 +332,7 @@ export type PostWhereInput = {
   aiConfidence?: Prisma.FloatFilter<"Post"> | number
   aiSignals?: Prisma.StringFilter<"Post"> | string
   userDeclaredAi?: Prisma.BoolFilter<"Post"> | boolean
+  noAiMark?: Prisma.BoolFilter<"Post"> | boolean
   isSfw?: Prisma.BoolFilter<"Post"> | boolean
   sfwConfidence?: Prisma.FloatFilter<"Post"> | number
   sfwSignals?: Prisma.StringFilter<"Post"> | string
@@ -333,6 +341,8 @@ export type PostWhereInput = {
   createdAt?: Prisma.DateTimeFilter<"Post"> | Date | string
   userId?: Prisma.StringFilter<"Post"> | string
   user?: Prisma.XOR<Prisma.UserScalarRelationFilter, Prisma.UserWhereInput>
+  likes?: Prisma.LikeListRelationFilter
+  comments?: Prisma.CommentListRelationFilter
 }
 
 export type PostOrderByWithRelationInput = {
@@ -347,6 +357,7 @@ export type PostOrderByWithRelationInput = {
   aiConfidence?: Prisma.SortOrder
   aiSignals?: Prisma.SortOrder
   userDeclaredAi?: Prisma.SortOrder
+  noAiMark?: Prisma.SortOrder
   isSfw?: Prisma.SortOrder
   sfwConfidence?: Prisma.SortOrder
   sfwSignals?: Prisma.SortOrder
@@ -355,6 +366,8 @@ export type PostOrderByWithRelationInput = {
   createdAt?: Prisma.SortOrder
   userId?: Prisma.SortOrder
   user?: Prisma.UserOrderByWithRelationInput
+  likes?: Prisma.LikeOrderByRelationAggregateInput
+  comments?: Prisma.CommentOrderByRelationAggregateInput
 }
 
 export type PostWhereUniqueInput = Prisma.AtLeast<{
@@ -372,6 +385,7 @@ export type PostWhereUniqueInput = Prisma.AtLeast<{
   aiConfidence?: Prisma.FloatFilter<"Post"> | number
   aiSignals?: Prisma.StringFilter<"Post"> | string
   userDeclaredAi?: Prisma.BoolFilter<"Post"> | boolean
+  noAiMark?: Prisma.BoolFilter<"Post"> | boolean
   isSfw?: Prisma.BoolFilter<"Post"> | boolean
   sfwConfidence?: Prisma.FloatFilter<"Post"> | number
   sfwSignals?: Prisma.StringFilter<"Post"> | string
@@ -380,6 +394,8 @@ export type PostWhereUniqueInput = Prisma.AtLeast<{
   createdAt?: Prisma.DateTimeFilter<"Post"> | Date | string
   userId?: Prisma.StringFilter<"Post"> | string
   user?: Prisma.XOR<Prisma.UserScalarRelationFilter, Prisma.UserWhereInput>
+  likes?: Prisma.LikeListRelationFilter
+  comments?: Prisma.CommentListRelationFilter
 }, "id">
 
 export type PostOrderByWithAggregationInput = {
@@ -394,6 +410,7 @@ export type PostOrderByWithAggregationInput = {
   aiConfidence?: Prisma.SortOrder
   aiSignals?: Prisma.SortOrder
   userDeclaredAi?: Prisma.SortOrder
+  noAiMark?: Prisma.SortOrder
   isSfw?: Prisma.SortOrder
   sfwConfidence?: Prisma.SortOrder
   sfwSignals?: Prisma.SortOrder
@@ -423,6 +440,7 @@ export type PostScalarWhereWithAggregatesInput = {
   aiConfidence?: Prisma.FloatWithAggregatesFilter<"Post"> | number
   aiSignals?: Prisma.StringWithAggregatesFilter<"Post"> | string
   userDeclaredAi?: Prisma.BoolWithAggregatesFilter<"Post"> | boolean
+  noAiMark?: Prisma.BoolWithAggregatesFilter<"Post"> | boolean
   isSfw?: Prisma.BoolWithAggregatesFilter<"Post"> | boolean
   sfwConfidence?: Prisma.FloatWithAggregatesFilter<"Post"> | number
   sfwSignals?: Prisma.StringWithAggregatesFilter<"Post"> | string
@@ -444,6 +462,7 @@ export type PostCreateInput = {
   aiConfidence: number
   aiSignals: string
   userDeclaredAi?: boolean
+  noAiMark?: boolean
   isSfw: boolean
   sfwConfidence: number
   sfwSignals: string
@@ -451,6 +470,8 @@ export type PostCreateInput = {
   source?: string
   createdAt?: Date | string
   user: Prisma.UserCreateNestedOneWithoutPostsInput
+  likes?: Prisma.LikeCreateNestedManyWithoutPostInput
+  comments?: Prisma.CommentCreateNestedManyWithoutPostInput
 }
 
 export type PostUncheckedCreateInput = {
@@ -465,6 +486,7 @@ export type PostUncheckedCreateInput = {
   aiConfidence: number
   aiSignals: string
   userDeclaredAi?: boolean
+  noAiMark?: boolean
   isSfw: boolean
   sfwConfidence: number
   sfwSignals: string
@@ -472,6 +494,8 @@ export type PostUncheckedCreateInput = {
   source?: string
   createdAt?: Date | string
   userId: string
+  likes?: Prisma.LikeUncheckedCreateNestedManyWithoutPostInput
+  comments?: Prisma.CommentUncheckedCreateNestedManyWithoutPostInput
 }
 
 export type PostUpdateInput = {
@@ -486,6 +510,7 @@ export type PostUpdateInput = {
   aiConfidence?: Prisma.FloatFieldUpdateOperationsInput | number
   aiSignals?: Prisma.StringFieldUpdateOperationsInput | string
   userDeclaredAi?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  noAiMark?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isSfw?: Prisma.BoolFieldUpdateOperationsInput | boolean
   sfwConfidence?: Prisma.FloatFieldUpdateOperationsInput | number
   sfwSignals?: Prisma.StringFieldUpdateOperationsInput | string
@@ -493,6 +518,8 @@ export type PostUpdateInput = {
   source?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   user?: Prisma.UserUpdateOneRequiredWithoutPostsNestedInput
+  likes?: Prisma.LikeUpdateManyWithoutPostNestedInput
+  comments?: Prisma.CommentUpdateManyWithoutPostNestedInput
 }
 
 export type PostUncheckedUpdateInput = {
@@ -507,6 +534,7 @@ export type PostUncheckedUpdateInput = {
   aiConfidence?: Prisma.FloatFieldUpdateOperationsInput | number
   aiSignals?: Prisma.StringFieldUpdateOperationsInput | string
   userDeclaredAi?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  noAiMark?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isSfw?: Prisma.BoolFieldUpdateOperationsInput | boolean
   sfwConfidence?: Prisma.FloatFieldUpdateOperationsInput | number
   sfwSignals?: Prisma.StringFieldUpdateOperationsInput | string
@@ -514,6 +542,8 @@ export type PostUncheckedUpdateInput = {
   source?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   userId?: Prisma.StringFieldUpdateOperationsInput | string
+  likes?: Prisma.LikeUncheckedUpdateManyWithoutPostNestedInput
+  comments?: Prisma.CommentUncheckedUpdateManyWithoutPostNestedInput
 }
 
 export type PostCreateManyInput = {
@@ -528,6 +558,7 @@ export type PostCreateManyInput = {
   aiConfidence: number
   aiSignals: string
   userDeclaredAi?: boolean
+  noAiMark?: boolean
   isSfw: boolean
   sfwConfidence: number
   sfwSignals: string
@@ -549,6 +580,7 @@ export type PostUpdateManyMutationInput = {
   aiConfidence?: Prisma.FloatFieldUpdateOperationsInput | number
   aiSignals?: Prisma.StringFieldUpdateOperationsInput | string
   userDeclaredAi?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  noAiMark?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isSfw?: Prisma.BoolFieldUpdateOperationsInput | boolean
   sfwConfidence?: Prisma.FloatFieldUpdateOperationsInput | number
   sfwSignals?: Prisma.StringFieldUpdateOperationsInput | string
@@ -569,6 +601,7 @@ export type PostUncheckedUpdateManyInput = {
   aiConfidence?: Prisma.FloatFieldUpdateOperationsInput | number
   aiSignals?: Prisma.StringFieldUpdateOperationsInput | string
   userDeclaredAi?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  noAiMark?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isSfw?: Prisma.BoolFieldUpdateOperationsInput | boolean
   sfwConfidence?: Prisma.FloatFieldUpdateOperationsInput | number
   sfwSignals?: Prisma.StringFieldUpdateOperationsInput | string
@@ -600,6 +633,7 @@ export type PostCountOrderByAggregateInput = {
   aiConfidence?: Prisma.SortOrder
   aiSignals?: Prisma.SortOrder
   userDeclaredAi?: Prisma.SortOrder
+  noAiMark?: Prisma.SortOrder
   isSfw?: Prisma.SortOrder
   sfwConfidence?: Prisma.SortOrder
   sfwSignals?: Prisma.SortOrder
@@ -628,6 +662,7 @@ export type PostMaxOrderByAggregateInput = {
   aiConfidence?: Prisma.SortOrder
   aiSignals?: Prisma.SortOrder
   userDeclaredAi?: Prisma.SortOrder
+  noAiMark?: Prisma.SortOrder
   isSfw?: Prisma.SortOrder
   sfwConfidence?: Prisma.SortOrder
   sfwSignals?: Prisma.SortOrder
@@ -649,6 +684,7 @@ export type PostMinOrderByAggregateInput = {
   aiConfidence?: Prisma.SortOrder
   aiSignals?: Prisma.SortOrder
   userDeclaredAi?: Prisma.SortOrder
+  noAiMark?: Prisma.SortOrder
   isSfw?: Prisma.SortOrder
   sfwConfidence?: Prisma.SortOrder
   sfwSignals?: Prisma.SortOrder
@@ -663,6 +699,11 @@ export type PostSumOrderByAggregateInput = {
   durationSeconds?: Prisma.SortOrder
   aiConfidence?: Prisma.SortOrder
   sfwConfidence?: Prisma.SortOrder
+}
+
+export type PostScalarRelationFilter = {
+  is?: Prisma.PostWhereInput
+  isNot?: Prisma.PostWhereInput
 }
 
 export type PostCreateNestedManyWithoutUserInput = {
@@ -735,6 +776,34 @@ export type FloatFieldUpdateOperationsInput = {
   divide?: number
 }
 
+export type PostCreateNestedOneWithoutLikesInput = {
+  create?: Prisma.XOR<Prisma.PostCreateWithoutLikesInput, Prisma.PostUncheckedCreateWithoutLikesInput>
+  connectOrCreate?: Prisma.PostCreateOrConnectWithoutLikesInput
+  connect?: Prisma.PostWhereUniqueInput
+}
+
+export type PostUpdateOneRequiredWithoutLikesNestedInput = {
+  create?: Prisma.XOR<Prisma.PostCreateWithoutLikesInput, Prisma.PostUncheckedCreateWithoutLikesInput>
+  connectOrCreate?: Prisma.PostCreateOrConnectWithoutLikesInput
+  upsert?: Prisma.PostUpsertWithoutLikesInput
+  connect?: Prisma.PostWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.PostUpdateToOneWithWhereWithoutLikesInput, Prisma.PostUpdateWithoutLikesInput>, Prisma.PostUncheckedUpdateWithoutLikesInput>
+}
+
+export type PostCreateNestedOneWithoutCommentsInput = {
+  create?: Prisma.XOR<Prisma.PostCreateWithoutCommentsInput, Prisma.PostUncheckedCreateWithoutCommentsInput>
+  connectOrCreate?: Prisma.PostCreateOrConnectWithoutCommentsInput
+  connect?: Prisma.PostWhereUniqueInput
+}
+
+export type PostUpdateOneRequiredWithoutCommentsNestedInput = {
+  create?: Prisma.XOR<Prisma.PostCreateWithoutCommentsInput, Prisma.PostUncheckedCreateWithoutCommentsInput>
+  connectOrCreate?: Prisma.PostCreateOrConnectWithoutCommentsInput
+  upsert?: Prisma.PostUpsertWithoutCommentsInput
+  connect?: Prisma.PostWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.PostUpdateToOneWithWhereWithoutCommentsInput, Prisma.PostUpdateWithoutCommentsInput>, Prisma.PostUncheckedUpdateWithoutCommentsInput>
+}
+
 export type PostCreateWithoutUserInput = {
   id?: string
   title: string
@@ -747,12 +816,15 @@ export type PostCreateWithoutUserInput = {
   aiConfidence: number
   aiSignals: string
   userDeclaredAi?: boolean
+  noAiMark?: boolean
   isSfw: boolean
   sfwConfidence: number
   sfwSignals: string
   status?: string
   source?: string
   createdAt?: Date | string
+  likes?: Prisma.LikeCreateNestedManyWithoutPostInput
+  comments?: Prisma.CommentCreateNestedManyWithoutPostInput
 }
 
 export type PostUncheckedCreateWithoutUserInput = {
@@ -767,12 +839,15 @@ export type PostUncheckedCreateWithoutUserInput = {
   aiConfidence: number
   aiSignals: string
   userDeclaredAi?: boolean
+  noAiMark?: boolean
   isSfw: boolean
   sfwConfidence: number
   sfwSignals: string
   status?: string
   source?: string
   createdAt?: Date | string
+  likes?: Prisma.LikeUncheckedCreateNestedManyWithoutPostInput
+  comments?: Prisma.CommentUncheckedCreateNestedManyWithoutPostInput
 }
 
 export type PostCreateOrConnectWithoutUserInput = {
@@ -816,6 +891,7 @@ export type PostScalarWhereInput = {
   aiConfidence?: Prisma.FloatFilter<"Post"> | number
   aiSignals?: Prisma.StringFilter<"Post"> | string
   userDeclaredAi?: Prisma.BoolFilter<"Post"> | boolean
+  noAiMark?: Prisma.BoolFilter<"Post"> | boolean
   isSfw?: Prisma.BoolFilter<"Post"> | boolean
   sfwConfidence?: Prisma.FloatFilter<"Post"> | number
   sfwSignals?: Prisma.StringFilter<"Post"> | string
@@ -823,6 +899,222 @@ export type PostScalarWhereInput = {
   source?: Prisma.StringFilter<"Post"> | string
   createdAt?: Prisma.DateTimeFilter<"Post"> | Date | string
   userId?: Prisma.StringFilter<"Post"> | string
+}
+
+export type PostCreateWithoutLikesInput = {
+  id?: string
+  title: string
+  mediaType: string
+  mediaPath: string
+  mimeType: string
+  fileSize: number
+  durationSeconds?: number | null
+  isAiGenerated: boolean
+  aiConfidence: number
+  aiSignals: string
+  userDeclaredAi?: boolean
+  noAiMark?: boolean
+  isSfw: boolean
+  sfwConfidence: number
+  sfwSignals: string
+  status?: string
+  source?: string
+  createdAt?: Date | string
+  user: Prisma.UserCreateNestedOneWithoutPostsInput
+  comments?: Prisma.CommentCreateNestedManyWithoutPostInput
+}
+
+export type PostUncheckedCreateWithoutLikesInput = {
+  id?: string
+  title: string
+  mediaType: string
+  mediaPath: string
+  mimeType: string
+  fileSize: number
+  durationSeconds?: number | null
+  isAiGenerated: boolean
+  aiConfidence: number
+  aiSignals: string
+  userDeclaredAi?: boolean
+  noAiMark?: boolean
+  isSfw: boolean
+  sfwConfidence: number
+  sfwSignals: string
+  status?: string
+  source?: string
+  createdAt?: Date | string
+  userId: string
+  comments?: Prisma.CommentUncheckedCreateNestedManyWithoutPostInput
+}
+
+export type PostCreateOrConnectWithoutLikesInput = {
+  where: Prisma.PostWhereUniqueInput
+  create: Prisma.XOR<Prisma.PostCreateWithoutLikesInput, Prisma.PostUncheckedCreateWithoutLikesInput>
+}
+
+export type PostUpsertWithoutLikesInput = {
+  update: Prisma.XOR<Prisma.PostUpdateWithoutLikesInput, Prisma.PostUncheckedUpdateWithoutLikesInput>
+  create: Prisma.XOR<Prisma.PostCreateWithoutLikesInput, Prisma.PostUncheckedCreateWithoutLikesInput>
+  where?: Prisma.PostWhereInput
+}
+
+export type PostUpdateToOneWithWhereWithoutLikesInput = {
+  where?: Prisma.PostWhereInput
+  data: Prisma.XOR<Prisma.PostUpdateWithoutLikesInput, Prisma.PostUncheckedUpdateWithoutLikesInput>
+}
+
+export type PostUpdateWithoutLikesInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  title?: Prisma.StringFieldUpdateOperationsInput | string
+  mediaType?: Prisma.StringFieldUpdateOperationsInput | string
+  mediaPath?: Prisma.StringFieldUpdateOperationsInput | string
+  mimeType?: Prisma.StringFieldUpdateOperationsInput | string
+  fileSize?: Prisma.IntFieldUpdateOperationsInput | number
+  durationSeconds?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  isAiGenerated?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  aiConfidence?: Prisma.FloatFieldUpdateOperationsInput | number
+  aiSignals?: Prisma.StringFieldUpdateOperationsInput | string
+  userDeclaredAi?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  noAiMark?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isSfw?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  sfwConfidence?: Prisma.FloatFieldUpdateOperationsInput | number
+  sfwSignals?: Prisma.StringFieldUpdateOperationsInput | string
+  status?: Prisma.StringFieldUpdateOperationsInput | string
+  source?: Prisma.StringFieldUpdateOperationsInput | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  user?: Prisma.UserUpdateOneRequiredWithoutPostsNestedInput
+  comments?: Prisma.CommentUpdateManyWithoutPostNestedInput
+}
+
+export type PostUncheckedUpdateWithoutLikesInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  title?: Prisma.StringFieldUpdateOperationsInput | string
+  mediaType?: Prisma.StringFieldUpdateOperationsInput | string
+  mediaPath?: Prisma.StringFieldUpdateOperationsInput | string
+  mimeType?: Prisma.StringFieldUpdateOperationsInput | string
+  fileSize?: Prisma.IntFieldUpdateOperationsInput | number
+  durationSeconds?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  isAiGenerated?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  aiConfidence?: Prisma.FloatFieldUpdateOperationsInput | number
+  aiSignals?: Prisma.StringFieldUpdateOperationsInput | string
+  userDeclaredAi?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  noAiMark?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isSfw?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  sfwConfidence?: Prisma.FloatFieldUpdateOperationsInput | number
+  sfwSignals?: Prisma.StringFieldUpdateOperationsInput | string
+  status?: Prisma.StringFieldUpdateOperationsInput | string
+  source?: Prisma.StringFieldUpdateOperationsInput | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  userId?: Prisma.StringFieldUpdateOperationsInput | string
+  comments?: Prisma.CommentUncheckedUpdateManyWithoutPostNestedInput
+}
+
+export type PostCreateWithoutCommentsInput = {
+  id?: string
+  title: string
+  mediaType: string
+  mediaPath: string
+  mimeType: string
+  fileSize: number
+  durationSeconds?: number | null
+  isAiGenerated: boolean
+  aiConfidence: number
+  aiSignals: string
+  userDeclaredAi?: boolean
+  noAiMark?: boolean
+  isSfw: boolean
+  sfwConfidence: number
+  sfwSignals: string
+  status?: string
+  source?: string
+  createdAt?: Date | string
+  user: Prisma.UserCreateNestedOneWithoutPostsInput
+  likes?: Prisma.LikeCreateNestedManyWithoutPostInput
+}
+
+export type PostUncheckedCreateWithoutCommentsInput = {
+  id?: string
+  title: string
+  mediaType: string
+  mediaPath: string
+  mimeType: string
+  fileSize: number
+  durationSeconds?: number | null
+  isAiGenerated: boolean
+  aiConfidence: number
+  aiSignals: string
+  userDeclaredAi?: boolean
+  noAiMark?: boolean
+  isSfw: boolean
+  sfwConfidence: number
+  sfwSignals: string
+  status?: string
+  source?: string
+  createdAt?: Date | string
+  userId: string
+  likes?: Prisma.LikeUncheckedCreateNestedManyWithoutPostInput
+}
+
+export type PostCreateOrConnectWithoutCommentsInput = {
+  where: Prisma.PostWhereUniqueInput
+  create: Prisma.XOR<Prisma.PostCreateWithoutCommentsInput, Prisma.PostUncheckedCreateWithoutCommentsInput>
+}
+
+export type PostUpsertWithoutCommentsInput = {
+  update: Prisma.XOR<Prisma.PostUpdateWithoutCommentsInput, Prisma.PostUncheckedUpdateWithoutCommentsInput>
+  create: Prisma.XOR<Prisma.PostCreateWithoutCommentsInput, Prisma.PostUncheckedCreateWithoutCommentsInput>
+  where?: Prisma.PostWhereInput
+}
+
+export type PostUpdateToOneWithWhereWithoutCommentsInput = {
+  where?: Prisma.PostWhereInput
+  data: Prisma.XOR<Prisma.PostUpdateWithoutCommentsInput, Prisma.PostUncheckedUpdateWithoutCommentsInput>
+}
+
+export type PostUpdateWithoutCommentsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  title?: Prisma.StringFieldUpdateOperationsInput | string
+  mediaType?: Prisma.StringFieldUpdateOperationsInput | string
+  mediaPath?: Prisma.StringFieldUpdateOperationsInput | string
+  mimeType?: Prisma.StringFieldUpdateOperationsInput | string
+  fileSize?: Prisma.IntFieldUpdateOperationsInput | number
+  durationSeconds?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  isAiGenerated?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  aiConfidence?: Prisma.FloatFieldUpdateOperationsInput | number
+  aiSignals?: Prisma.StringFieldUpdateOperationsInput | string
+  userDeclaredAi?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  noAiMark?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isSfw?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  sfwConfidence?: Prisma.FloatFieldUpdateOperationsInput | number
+  sfwSignals?: Prisma.StringFieldUpdateOperationsInput | string
+  status?: Prisma.StringFieldUpdateOperationsInput | string
+  source?: Prisma.StringFieldUpdateOperationsInput | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  user?: Prisma.UserUpdateOneRequiredWithoutPostsNestedInput
+  likes?: Prisma.LikeUpdateManyWithoutPostNestedInput
+}
+
+export type PostUncheckedUpdateWithoutCommentsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  title?: Prisma.StringFieldUpdateOperationsInput | string
+  mediaType?: Prisma.StringFieldUpdateOperationsInput | string
+  mediaPath?: Prisma.StringFieldUpdateOperationsInput | string
+  mimeType?: Prisma.StringFieldUpdateOperationsInput | string
+  fileSize?: Prisma.IntFieldUpdateOperationsInput | number
+  durationSeconds?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  isAiGenerated?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  aiConfidence?: Prisma.FloatFieldUpdateOperationsInput | number
+  aiSignals?: Prisma.StringFieldUpdateOperationsInput | string
+  userDeclaredAi?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  noAiMark?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isSfw?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  sfwConfidence?: Prisma.FloatFieldUpdateOperationsInput | number
+  sfwSignals?: Prisma.StringFieldUpdateOperationsInput | string
+  status?: Prisma.StringFieldUpdateOperationsInput | string
+  source?: Prisma.StringFieldUpdateOperationsInput | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  userId?: Prisma.StringFieldUpdateOperationsInput | string
+  likes?: Prisma.LikeUncheckedUpdateManyWithoutPostNestedInput
 }
 
 export type PostCreateManyUserInput = {
@@ -837,6 +1129,7 @@ export type PostCreateManyUserInput = {
   aiConfidence: number
   aiSignals: string
   userDeclaredAi?: boolean
+  noAiMark?: boolean
   isSfw: boolean
   sfwConfidence: number
   sfwSignals: string
@@ -857,12 +1150,15 @@ export type PostUpdateWithoutUserInput = {
   aiConfidence?: Prisma.FloatFieldUpdateOperationsInput | number
   aiSignals?: Prisma.StringFieldUpdateOperationsInput | string
   userDeclaredAi?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  noAiMark?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isSfw?: Prisma.BoolFieldUpdateOperationsInput | boolean
   sfwConfidence?: Prisma.FloatFieldUpdateOperationsInput | number
   sfwSignals?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.StringFieldUpdateOperationsInput | string
   source?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  likes?: Prisma.LikeUpdateManyWithoutPostNestedInput
+  comments?: Prisma.CommentUpdateManyWithoutPostNestedInput
 }
 
 export type PostUncheckedUpdateWithoutUserInput = {
@@ -877,12 +1173,15 @@ export type PostUncheckedUpdateWithoutUserInput = {
   aiConfidence?: Prisma.FloatFieldUpdateOperationsInput | number
   aiSignals?: Prisma.StringFieldUpdateOperationsInput | string
   userDeclaredAi?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  noAiMark?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isSfw?: Prisma.BoolFieldUpdateOperationsInput | boolean
   sfwConfidence?: Prisma.FloatFieldUpdateOperationsInput | number
   sfwSignals?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.StringFieldUpdateOperationsInput | string
   source?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  likes?: Prisma.LikeUncheckedUpdateManyWithoutPostNestedInput
+  comments?: Prisma.CommentUncheckedUpdateManyWithoutPostNestedInput
 }
 
 export type PostUncheckedUpdateManyWithoutUserInput = {
@@ -897,6 +1196,7 @@ export type PostUncheckedUpdateManyWithoutUserInput = {
   aiConfidence?: Prisma.FloatFieldUpdateOperationsInput | number
   aiSignals?: Prisma.StringFieldUpdateOperationsInput | string
   userDeclaredAi?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  noAiMark?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isSfw?: Prisma.BoolFieldUpdateOperationsInput | boolean
   sfwConfidence?: Prisma.FloatFieldUpdateOperationsInput | number
   sfwSignals?: Prisma.StringFieldUpdateOperationsInput | string
@@ -905,6 +1205,44 @@ export type PostUncheckedUpdateManyWithoutUserInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
+
+/**
+ * Count Type PostCountOutputType
+ */
+
+export type PostCountOutputType = {
+  likes: number
+  comments: number
+}
+
+export type PostCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  likes?: boolean | PostCountOutputTypeCountLikesArgs
+  comments?: boolean | PostCountOutputTypeCountCommentsArgs
+}
+
+/**
+ * PostCountOutputType without action
+ */
+export type PostCountOutputTypeDefaultArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the PostCountOutputType
+   */
+  select?: Prisma.PostCountOutputTypeSelect<ExtArgs> | null
+}
+
+/**
+ * PostCountOutputType without action
+ */
+export type PostCountOutputTypeCountLikesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.LikeWhereInput
+}
+
+/**
+ * PostCountOutputType without action
+ */
+export type PostCountOutputTypeCountCommentsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.CommentWhereInput
+}
 
 
 export type PostSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
@@ -919,6 +1257,7 @@ export type PostSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = r
   aiConfidence?: boolean
   aiSignals?: boolean
   userDeclaredAi?: boolean
+  noAiMark?: boolean
   isSfw?: boolean
   sfwConfidence?: boolean
   sfwSignals?: boolean
@@ -927,6 +1266,9 @@ export type PostSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = r
   createdAt?: boolean
   userId?: boolean
   user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
+  likes?: boolean | Prisma.Post$likesArgs<ExtArgs>
+  comments?: boolean | Prisma.Post$commentsArgs<ExtArgs>
+  _count?: boolean | Prisma.PostCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["post"]>
 
 export type PostSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
@@ -941,6 +1283,7 @@ export type PostSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensio
   aiConfidence?: boolean
   aiSignals?: boolean
   userDeclaredAi?: boolean
+  noAiMark?: boolean
   isSfw?: boolean
   sfwConfidence?: boolean
   sfwSignals?: boolean
@@ -963,6 +1306,7 @@ export type PostSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensio
   aiConfidence?: boolean
   aiSignals?: boolean
   userDeclaredAi?: boolean
+  noAiMark?: boolean
   isSfw?: boolean
   sfwConfidence?: boolean
   sfwSignals?: boolean
@@ -985,6 +1329,7 @@ export type PostSelectScalar = {
   aiConfidence?: boolean
   aiSignals?: boolean
   userDeclaredAi?: boolean
+  noAiMark?: boolean
   isSfw?: boolean
   sfwConfidence?: boolean
   sfwSignals?: boolean
@@ -994,9 +1339,12 @@ export type PostSelectScalar = {
   userId?: boolean
 }
 
-export type PostOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "title" | "mediaType" | "mediaPath" | "mimeType" | "fileSize" | "durationSeconds" | "isAiGenerated" | "aiConfidence" | "aiSignals" | "userDeclaredAi" | "isSfw" | "sfwConfidence" | "sfwSignals" | "status" | "source" | "createdAt" | "userId", ExtArgs["result"]["post"]>
+export type PostOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "title" | "mediaType" | "mediaPath" | "mimeType" | "fileSize" | "durationSeconds" | "isAiGenerated" | "aiConfidence" | "aiSignals" | "userDeclaredAi" | "noAiMark" | "isSfw" | "sfwConfidence" | "sfwSignals" | "status" | "source" | "createdAt" | "userId", ExtArgs["result"]["post"]>
 export type PostInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
+  likes?: boolean | Prisma.Post$likesArgs<ExtArgs>
+  comments?: boolean | Prisma.Post$commentsArgs<ExtArgs>
+  _count?: boolean | Prisma.PostCountOutputTypeDefaultArgs<ExtArgs>
 }
 export type PostIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
@@ -1009,6 +1357,8 @@ export type $PostPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs =
   name: "Post"
   objects: {
     user: Prisma.$UserPayload<ExtArgs>
+    likes: Prisma.$LikePayload<ExtArgs>[]
+    comments: Prisma.$CommentPayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
@@ -1022,6 +1372,7 @@ export type $PostPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs =
     aiConfidence: number
     aiSignals: string
     userDeclaredAi: boolean
+    noAiMark: boolean
     isSfw: boolean
     sfwConfidence: number
     sfwSignals: string
@@ -1424,6 +1775,8 @@ readonly fields: PostFieldRefs;
 export interface Prisma__PostClient<T, Null = never, ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
   readonly [Symbol.toStringTag]: "PrismaPromise"
   user<T extends Prisma.UserDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.UserDefaultArgs<ExtArgs>>): Prisma.Prisma__UserClient<runtime.Types.Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+  likes<T extends Prisma.Post$likesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Post$likesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$LikePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  comments<T extends Prisma.Post$commentsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Post$commentsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$CommentPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -1464,6 +1817,7 @@ export interface PostFieldRefs {
   readonly aiConfidence: Prisma.FieldRef<"Post", 'Float'>
   readonly aiSignals: Prisma.FieldRef<"Post", 'String'>
   readonly userDeclaredAi: Prisma.FieldRef<"Post", 'Boolean'>
+  readonly noAiMark: Prisma.FieldRef<"Post", 'Boolean'>
   readonly isSfw: Prisma.FieldRef<"Post", 'Boolean'>
   readonly sfwConfidence: Prisma.FieldRef<"Post", 'Float'>
   readonly sfwSignals: Prisma.FieldRef<"Post", 'String'>
@@ -1869,6 +2223,54 @@ export type PostDeleteManyArgs<ExtArgs extends runtime.Types.Extensions.Internal
    * Limit how many Posts to delete.
    */
   limit?: number
+}
+
+/**
+ * Post.likes
+ */
+export type Post$likesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the Like
+   */
+  select?: Prisma.LikeSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the Like
+   */
+  omit?: Prisma.LikeOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.LikeInclude<ExtArgs> | null
+  where?: Prisma.LikeWhereInput
+  orderBy?: Prisma.LikeOrderByWithRelationInput | Prisma.LikeOrderByWithRelationInput[]
+  cursor?: Prisma.LikeWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.LikeScalarFieldEnum | Prisma.LikeScalarFieldEnum[]
+}
+
+/**
+ * Post.comments
+ */
+export type Post$commentsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the Comment
+   */
+  select?: Prisma.CommentSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the Comment
+   */
+  omit?: Prisma.CommentOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.CommentInclude<ExtArgs> | null
+  where?: Prisma.CommentWhereInput
+  orderBy?: Prisma.CommentOrderByWithRelationInput | Prisma.CommentOrderByWithRelationInput[]
+  cursor?: Prisma.CommentWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.CommentScalarFieldEnum | Prisma.CommentScalarFieldEnum[]
 }
 
 /**

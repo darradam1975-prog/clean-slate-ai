@@ -13,6 +13,13 @@ export function validatePassword(password: string): string | null {
   return null;
 }
 
+export function validateComment(body: string): string | null {
+  const trimmed = body.trim();
+  if (!trimmed) return "Write a comment first.";
+  if (trimmed.length > 500) return "Comments must be 500 characters or fewer.";
+  return null;
+}
+
 export function validateTitle(title: string): string | null {
   const trimmed = title.trim();
   if (!trimmed) return "A title is required for every upload.";
