@@ -47,3 +47,8 @@ export type Like = Prisma.LikeModel
  * 
  */
 export type Comment = Prisma.CommentModel
+/**
+ * Model SiteSetting
+ * 
+ */
+export type SiteSetting = Prisma.SiteSettingModel

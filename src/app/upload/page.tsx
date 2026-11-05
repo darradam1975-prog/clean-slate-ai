@@ -34,10 +34,6 @@ export default async function UploadPage() {
         </div>
         <UploadForm />
         <p className="mx-auto mt-6 max-w-2xl text-center text-xs text-zinc-500">
-          Need Google Drive imports? Add{" "}
-          <code className="text-zinc-400">NEXT_PUBLIC_GOOGLE_CLIENT_ID</code> and{" "}
-          <code className="text-zinc-400">NEXT_PUBLIC_GOOGLE_API_KEY</code> to{" "}
-          <code className="text-zinc-400">.env.local</code>.{" "}
           <Link href="/" className="text-violet-300 hover:text-violet-200">
             Back to feed
           </Link>

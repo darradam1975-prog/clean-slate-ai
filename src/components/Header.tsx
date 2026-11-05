@@ -18,6 +18,7 @@ export function Header() {
   const router = useRouter();
   const [user, setUser] = useState<User | null>(null);
   const [incomingFriendRequests, setIncomingFriendRequests] = useState(0);
+  const [isOwner, setIsOwner] = useState(false);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -26,6 +27,7 @@ export function Header() {
       .then((data) => {
         setUser(data.user);
         setIncomingFriendRequests(data.incomingFriendRequests ?? 0);
+        setIsOwner(Boolean(data.isOwner));
       })
       .finally(() => setLoading(false));
   }, []);
@@ -34,6 +36,7 @@ export function Header() {
     await fetch("/api/auth/logout", { method: "POST" });
     setUser(null);
     setIncomingFriendRequests(0);
+    setIsOwner(false);
     router.push("/");
     router.refresh();
   }
@@ -85,6 +88,14 @@ export function Header() {
                   </span>
                 )}
               </Link>
+              {isOwner && (
+                <Link
+                  href="/settings"
+                  className="rounded-full border border-white/10 px-3 py-2 text-sm text-zinc-200 transition hover:border-white/25 hover:text-white sm:px-4"
+                >
+                  Settings
+                </Link>
+              )}
               <Link
                 href="/upload"
                 className="rounded-full bg-gradient-to-r from-violet-500 to-fuchsia-500 px-3 py-2 text-sm font-medium text-white shadow-md shadow-violet-500/25 transition hover:brightness-110 sm:px-4"

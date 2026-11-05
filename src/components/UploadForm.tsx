@@ -110,10 +110,27 @@ export function UploadForm() {
   const [driveReady, setDriveReady] = useState(false);
   const [videoDuration, setVideoDuration] = useState<number | null>(null);
   const [videoPreview, setVideoPreview] = useState<Blob | null>(null);
-
-  const googleClientId = process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID;
-  const googleApiKey = process.env.NEXT_PUBLIC_GOOGLE_API_KEY;
+  const [googleClientId, setGoogleClientId] = useState<string | null>(null);
+  const [googleApiKey, setGoogleApiKey] = useState<string | null>(null);
   const driveConfigured = Boolean(googleClientId && googleApiKey);
+
+  useEffect(() => {
+    let cancelled = false;
+    fetch("/api/settings/drive")
+      .then((response) => (response.ok ? response.json() : { enabled: false }))
+      .then((data) => {
+        if (cancelled || !data.enabled || !data.apiKey || !data.clientId) return;
+        setGoogleApiKey(data.apiKey);
+        setGoogleClientId(data.clientId);
+      })
+      .catch(() => {
+        setGoogleApiKey(null);
+        setGoogleClientId(null);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
   useEffect(() => {
     if (!googleClientId || !googleApiKey) return;
@@ -141,7 +158,10 @@ export function UploadForm() {
     };
   }, [googleApiKey, googleClientId]);
 
-  async function handleFileChange(selected: File | null) {
+  async function handleFileChange(
+    selected: File | null,
+    nextSource: "computer" | "google_drive" = "computer",
+  ) {
     setError(null);
     setSuccess(null);
     setVideoDuration(null);
@@ -156,7 +176,7 @@ export function UploadForm() {
     }
 
     setFile(selected);
-    setSource("computer");
+    setSource(nextSource);
     setPreviewUrl(URL.createObjectURL(selected));
 
     if (selected.type.startsWith("video/")) {
@@ -173,7 +193,7 @@ export function UploadForm() {
   async function openGoogleDrivePicker() {
     if (!googleClientId || !googleApiKey) {
       setError(
-        "Google Drive import is optional and not set up yet. Use Upload from computer instead, or ask the site owner to add NEXT_PUBLIC_GOOGLE_CLIENT_ID and NEXT_PUBLIC_GOOGLE_API_KEY in Netlify environment variables and redeploy.",
+        "Google Drive import is turned off. The site owner can enable it in Settings with a Google API key.",
       );
       return;
     }
@@ -232,8 +252,7 @@ export function UploadForm() {
 
               const blob = await response.blob();
               const driveFile = new File([blob], doc.name, { type: doc.mimeType });
-              setSource("google_drive");
-              await handleFileChange(driveFile);
+              await handleFileChange(driveFile, "google_drive");
             } catch (err) {
               setError(
                 err instanceof Error
@@ -426,7 +445,7 @@ export function UploadForm() {
         <p className="text-xs text-zinc-500">
           {driveConfigured
             ? "Choose a file from your computer or import from Google Drive."
-            : "Upload from computer works now. Google Drive is optional and needs API keys on the server."}
+            : "Upload from computer works now. Google Drive turns on from Settings."}
         </p>
         <input
           ref={fileInputRef}

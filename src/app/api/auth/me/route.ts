@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { getCurrentUser } from "@/lib/auth";
 import { prisma } from "@/lib/db";
+import { isSiteOwner } from "@/lib/owner";
 
 export async function GET() {
   const user = await getCurrentUser();
@@ -12,5 +13,9 @@ export async function GET() {
     where: { addresseeId: user.id, status: "pending" },
   });
 
-  return NextResponse.json({ user, incomingFriendRequests });
+  return NextResponse.json({
+    user,
+    incomingFriendRequests,
+    isOwner: isSiteOwner(user.email),
+  });
 }
